@@ -1,4 +1,4 @@
-.PHONY: clean-pyc clean-build clean develop
+.PHONY: clean-pyc clean-build clean develop tdd
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
 try:
@@ -50,6 +50,10 @@ lint:
 
 test:
 	py.test tests/
+
+tdd:
+	pip install pytest-xdist
+	py.test -f tests
 
 test-all:
 	tox
