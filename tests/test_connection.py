@@ -1,11 +1,15 @@
-from percy import connection
-from percy import config
+import os
+
 import requests_mock
 import unittest
+
+from percy import connection
+from percy import config
 
 
 class TestPercyConnection(unittest.TestCase):
     def setUp(self):
+        os.environ['PERCY_TOKEN'] = 'abcd1234'
         self.percy_connection = connection.Connection(config.Config())
 
     @requests_mock.Mocker()
