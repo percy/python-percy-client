@@ -8,7 +8,7 @@ class TestPercyClient(unittest.TestCase):
         self.percy_client = client.Client()
 
     def test_default_connection(self):
-        self.assertIsNotNone(self.percy_client.get_connection())
+        self.assertNotEqual(self.percy_client.get_connection(), None)
 
     def test_create_build(self):
         pass

@@ -27,7 +27,7 @@ class Environment(object):
     def pull_request_number(self):
         if os.getenv('PERCY_PULL_REQUEST'):
             return os.getenv('PERCY_PULL_REQUEST')
-        if self._real_env:
+        if self._real_env and hasattr(self._real_env, 'pull_request_number'):
             return self._real_env.pull_request_number
 
     @property
@@ -36,7 +36,7 @@ class Environment(object):
         if os.getenv('PERCY_BRANCH'):
             return os.getenv('PERCY_BRANCH')
         # Second, from the CI environment.
-        if self._real_env:
+        if self._real_env and hasattr(self._real_env, 'branch'):
             return self._real_env.branch
         # Third, from the local git repo.
         raw_branch_output = self._raw_branch_output()
@@ -49,6 +49,29 @@ class Environment(object):
     def _raw_branch_output(self):
         # TODO: `git rev-parse --abbrev-ref HEAD 2> /dev/null`.strip
         return
+
+    @property
+    def repo(self):
+        if os.getenv('PERCY_REPO_SLUG'):
+            return os.getenv('PERCY_REPO_SLUG')
+        if self._real_env and hasattr(self._real_env, 'repo'):
+            return self._real_env.repo
+
+        raise NotImplementedError('needs PERCY_REPO_SLUG environment var')
+        # TODO:
+        # origin_url = _get_origin_url.strip
+        # if origin_url == ''
+        #   raise Percy::Client::Environment::RepoNotFoundError.new(
+        #     'No local git repository found. ' +
+        #     'You can manually set PERCY_REPO_SLUG to fix this.')
+        # end
+        # match = origin_url.match(Regexp.new('[:/]([^/]+\/[^/]+?)(\.git)?\Z'))
+        # if !match
+        #   raise Percy::Client::Environment::RepoNotFoundError.new(
+        #     "Could not determine repository name from URL: #{origin_url.inspect}\n" +
+        #     "You can manually set PERCY_REPO_SLUG to fix this.")
+        # end
+        # match[1]
 
 
 class TravisEnvironment(object):
@@ -65,6 +88,10 @@ class TravisEnvironment(object):
     @property
     def branch(self):
       return os.getenv('TRAVIS_BRANCH')
+
+    @property
+    def repo(self):
+      return os.getenv('TRAVIS_REPO_SLUG')
 
 
 class JenkinsEnvironment(object):
@@ -97,6 +124,13 @@ class CircleEnvironment(object):
     def branch(self):
         return os.getenv('CIRCLE_BRANCH')
 
+    @property
+    def repo(self):
+        return "{0}/{1}".format(
+            os.getenv('CIRCLE_PROJECT_USERNAME'),
+            os.getenv('CIRCLE_PROJECT_REPONAME'),
+        )
+
 
 class CodeshipEnvironment(object):
     @property
@@ -105,8 +139,8 @@ class CodeshipEnvironment(object):
 
     @property
     def pull_request_number(self):
-        # Unfortunately, codeship seems to always returns 'false' for CI_PULL_REQUEST. For now, return null.
         pr_num = os.getenv('CI_PULL_REQUEST')
+        # Unfortunately, codeship seems to always returns 'false', so let this be null.
         if pr_num != 'false':
           return pr_num
 
@@ -141,3 +175,8 @@ class SemaphoreEnvironment(object):
     @property
     def branch(self):
         return os.getenv('BRANCH_NAME')
+
+    @property
+    def repo(self):
+      return os.getenv('SEMAPHORE_REPO_SLUG')
+
