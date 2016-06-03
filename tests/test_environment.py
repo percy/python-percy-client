@@ -97,6 +97,12 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_PULL_REQUEST'] = '1234'
         assert self.environment.pull_request_number == '1234'
 
+    def test_branch(self):
+        assert self.environment.branch == 'master'
+        # Can be overridden with PERCY_BRANCH.
+        os.environ['PERCY_BRANCH'] = 'foo'
+        assert self.environment.branch == 'foo'
+
 
 class TestTravisEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -115,10 +121,17 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
 
     def test_pull_request_number(self):
         assert self.environment.pull_request_number == '256'
-        # Can be overridden with PERCY_PULL_REQUEST.
+
+        # PERCY env vars should take precendence over CI. Checked here once, assume other envs work.
         os.environ['PERCY_PULL_REQUEST'] = '1234'
         assert self.environment.pull_request_number == '1234'
 
+    def test_branch(self):
+        assert self.environment.branch == 'travis-branch'
+
+        # PERCY env vars should take precendence over CI. Checked here once, assume other envs work.
+        os.environ['PERCY_BRANCH'] = 'foo'
+        assert self.environment.branch == 'foo'
 
 
 class TestJenkinsEnvironment(BaseTestPercyEnvironment):
@@ -150,6 +163,9 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
     def test_current_ci(self):
         assert self.environment.current_ci == 'circle'
 
+    def test_branch(self):
+        assert self.environment.branch == 'circle-branch'
+
 
 class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -164,6 +180,9 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def test_current_ci(self):
         assert self.environment.current_ci == 'codeship'
 
+    def test_branch(self):
+        assert self.environment.branch == 'codeship-branch'
+
 
 class TestDroneEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -176,6 +195,9 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
 
     def test_current_ci(self):
         assert self.environment.current_ci == 'drone'
+
+    def test_branch(self):
+        assert self.environment.branch == 'drone-branch'
 
 
 class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
@@ -192,3 +214,6 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
 
     def test_current_ci(self):
         assert self.environment.current_ci == 'semaphore'
+
+    def test_branch(self):
+        assert self.environment.branch == 'semaphore-branch'

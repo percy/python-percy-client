@@ -30,6 +30,26 @@ class Environment(object):
         if self._real_env:
             return self._real_env.pull_request_number
 
+    @property
+    def branch(self):
+        # First, percy env var.
+        if os.getenv('PERCY_BRANCH'):
+            return os.getenv('PERCY_BRANCH')
+        # Second, from the CI environment.
+        if self._real_env:
+            return self._real_env.branch
+        # Third, from the local git repo.
+        raw_branch_output = self._raw_branch_output()
+        if raw_branch_output:
+            return raw_branch_output
+        # Fourth, fallback to 'master'.
+        # STDERR.puts '[percy] Warning: not in a git repo, setting PERCY_BRANCH to "master".'
+        return 'master'
+
+    def _raw_branch_output(self):
+        # TODO: `git rev-parse --abbrev-ref HEAD 2> /dev/null`.strip
+        return
+
 
 class TravisEnvironment(object):
     @property
@@ -42,6 +62,10 @@ class TravisEnvironment(object):
         if pr_num != 'false':
             return pr_num
 
+    @property
+    def branch(self):
+      return os.getenv('TRAVIS_BRANCH')
+
 
 class JenkinsEnvironment(object):
     @property
@@ -52,6 +76,10 @@ class JenkinsEnvironment(object):
     def pull_request_number(self):
         # GitHub Pull Request Builder plugin.
         return os.getenv('ghprbPullId')
+
+    @property
+    def branch(self):
+      return os.getenv('ghprbTargetBranch')
 
 
 class CircleEnvironment(object):
@@ -64,6 +92,10 @@ class CircleEnvironment(object):
         pr_url = os.getenv('CI_PULL_REQUEST')
         if pr_url:
           return os.getenv('CI_PULL_REQUEST').split('/')[-1]
+
+    @property
+    def branch(self):
+        return os.getenv('CIRCLE_BRANCH')
 
 
 class CodeshipEnvironment(object):
@@ -78,6 +110,10 @@ class CodeshipEnvironment(object):
         if pr_num != 'false':
           return pr_num
 
+    @property
+    def branch(self):
+        return os.getenv('CI_BRANCH')
+
 
 class DroneEnvironment(object):
     @property
@@ -87,6 +123,10 @@ class DroneEnvironment(object):
     @property
     def pull_request_number(self):
         return os.getenv('CI_PULL_REQUEST')
+
+    @property
+    def branch(self):
+        return os.getenv('DRONE_BRANCH')
 
 
 class SemaphoreEnvironment(object):
@@ -98,4 +138,6 @@ class SemaphoreEnvironment(object):
     def pull_request_number(self):
         return os.getenv('PULL_REQUEST_NUMBER')
 
-
+    @property
+    def branch(self):
+        return os.getenv('BRANCH_NAME')
