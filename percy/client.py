@@ -14,7 +14,7 @@ class Client(object):
         if connection:
             self._connection = connection
         else:
-            self._connection = Connection()
+            self._connection = Connection(self.config)
 
     def get_connection(self):
         return self._connection
