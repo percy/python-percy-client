@@ -16,7 +16,7 @@ class BaseTestPercyEnvironment(object):
         self.clear_env_vars()
 
         # Restore the original environment variables.
-        for key, value in self.original_env.iteritems():
+        for key, value in self.original_env.items():
             if value:
                 os.environ[key] = value
 
