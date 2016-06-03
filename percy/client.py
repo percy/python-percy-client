@@ -17,3 +17,7 @@ class Client(object):
 
     def create_build(self):
         pass
+
+    def _extract_build_data(self, options={}):
+        branch = options['branch']
+
