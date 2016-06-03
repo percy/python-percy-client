@@ -6,3 +6,4 @@ __version__ = '0.1.0'
 
 from client import *
 from environment import *
+from resource import *

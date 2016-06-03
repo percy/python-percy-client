@@ -2,6 +2,7 @@ import os
 
 __all__ = ['Environment']
 
+
 class Environment(object):
     def __init__(self):
         self._real_env = None

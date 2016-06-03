@@ -57,9 +57,9 @@ class Client(object):
                     'enable-javascript': kwargs.get('enable_javascript'),
                     'widths': widths,
                 },
-                'relationship': {
+                'relationships': {
                     'resources': {
-                        'data': resources.map(lambda r: r.serialize())
+                        'data': map(lambda r: r.serialize(), resources)
                     }
                 }
             }
@@ -69,6 +69,13 @@ class Client(object):
             build_id=build_id
         )
         return self._connection.post(path=path, data=data)
+
+    def finalize_snapshot(self, snapshot_id):
+        path = "{base_url}/snapshots/{snapshot_id}/finalize".format(
+            base_url=self.config.api_url,
+            snapshot_id=snapshot_id
+        )
+        return self._connection.post(path=path, data={})
 
     def upload_resource(self, build_id, content):
         sha = hashlib.sha256(content).hexdigest()

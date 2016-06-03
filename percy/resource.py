@@ -1,12 +1,14 @@
 import hashlib
 
+__all__ = ['Resource']
+
 
 class Resource(object):
 
     def __init__(self, resource_url, is_root=False, **kwargs):
         self.resource_url = resource_url
-        if not (kwargs.get('sha') or kwargs.get('content')):
-            raise ValueError('Either sha or content are required')
+        if 'sha' in kwargs and 'content' in kwargs or not ('sha' in kwargs or 'content' in kwargs):
+            raise ValueError('Exactly one of sha or content is required.')
         self.sha = kwargs.get(
             'sha',
             hashlib.sha256(kwargs.get('content')).hexdigest()
