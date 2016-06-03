@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import hashlib
+import base64
+
 from connection import Connection
 from environment import Environment
 from config import Config
@@ -62,6 +65,24 @@ class Client(object):
             }
         }
         path = "{base_url}/builds/{build_id}/snapshots/".format(
+            base_url=self.config.api_url,
+            build_id=build_id
+        )
+        return self._connection.post(path=path, data=data)
+
+    def upload_resource(self, build_id, content):
+        sha = hashlib.sha256(content).hexdigest()
+        data = {
+            'data': {
+                'type': 'resources',
+                'attributes': {
+                    'id': sha,
+                    'base64-content': base64.b64encode(content)
+                }
+
+            }
+        }
+        path = "{base_url}/builds/{build_id}/resources/".format(
             base_url=self.config.api_url,
             build_id=build_id
         )
