@@ -1,5 +1,5 @@
 import os
-from percy import environment
+import percy
 
 
 class BaseTestPercyEnvironment(object):
@@ -84,8 +84,18 @@ class BaseTestPercyEnvironment(object):
 
 
 class TestNoEnvironment(BaseTestPercyEnvironment):
+    def setup_method(self, method):
+        super(TestNoEnvironment, self).setup_method(self)
+        self.environment = percy.Environment()
+
     def test_current_ci(self):
-        assert environment.get_current_ci() == None
+        assert self.environment.current_ci == None
+
+    def test_pull_request_number(self):
+        assert self.environment.pull_request_number == None
+        # Can be overridden with PERCY_PULL_REQUEST.
+        os.environ['PERCY_PULL_REQUEST'] = '1234'
+        assert self.environment.pull_request_number == '1234'
 
 
 class TestTravisEnvironment(BaseTestPercyEnvironment):
@@ -98,9 +108,17 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
         os.environ['TRAVIS_COMMIT'] = 'travis-commit-sha'
         os.environ['TRAVIS_BRANCH'] = 'travis-branch'
         os.environ['CI_NODE_TOTAL'] = '3'
+        self.environment = percy.Environment()
 
     def test_current_ci(self):
-        assert environment.get_current_ci() == 'travis'
+        assert self.environment.current_ci == 'travis'
+
+    def test_pull_request_number(self):
+        assert self.environment.pull_request_number == '256'
+        # Can be overridden with PERCY_PULL_REQUEST.
+        os.environ['PERCY_PULL_REQUEST'] = '1234'
+        assert self.environment.pull_request_number == '1234'
+
 
 
 class TestJenkinsEnvironment(BaseTestPercyEnvironment):
@@ -110,9 +128,10 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
         os.environ['ghprbPullId'] = '123'
         os.environ['ghprbTargetBranch'] = 'jenkins-target-branch'
         os.environ['ghprbActualCommit'] = 'jenkins-actual-commit'
+        self.environment = percy.Environment()
 
     def test_current_ci(self):
-        assert environment.get_current_ci() == 'jenkins'
+        assert self.environment.current_ci == 'jenkins'
 
 
 class TestCircleEnvironment(BaseTestPercyEnvironment):
@@ -126,9 +145,10 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
         os.environ['CIRCLE_BUILD_NUM'] = 'build-number'
         os.environ['CIRCLE_NODE_TOTAL'] = '2'
         os.environ['CI_PULL_REQUESTS'] = 'https://github.com/owner/repo-name/pull/123'
+        self.environment = percy.Environment()
 
     def test_current_ci(self):
-        assert environment.get_current_ci() == 'circle'
+        assert self.environment.current_ci == 'circle'
 
 
 class TestCodeshipEnvironment(BaseTestPercyEnvironment):
@@ -139,9 +159,10 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
         os.environ['CI_BUILD_NUMBER'] = 'codeship-build-number'
         os.environ['CI_PULL_REQUEST'] = 'false'  # This is always false on Codeship, unfortunately.
         os.environ['CI_COMMIT_ID'] = 'codeship-commit-sha'
+        self.environment = percy.Environment()
 
     def test_current_ci(self):
-        assert environment.get_current_ci() == 'codeship'
+        assert self.environment.current_ci == 'codeship'
 
 
 class TestDroneEnvironment(BaseTestPercyEnvironment):
@@ -151,9 +172,10 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
         os.environ['DRONE_COMMIT'] = 'drone-commit-sha'
         os.environ['DRONE_BRANCH'] = 'drone-branch'
         os.environ['CI_PULL_REQUEST'] = '123'
+        self.environment = percy.Environment()
 
     def test_current_ci(self):
-        assert environment.get_current_ci() == 'drone'
+        assert self.environment.current_ci == 'drone'
 
 
 class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
@@ -166,6 +188,7 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
         os.environ['SEMAPHORE_BUILD_NUMBER'] = 'semaphore-build-number'
         os.environ['SEMAPHORE_THREAD_COUNT'] = '2'
         os.environ['PULL_REQUEST_NUMBER'] = '123'
+        self.environment = percy.Environment()
 
     def test_current_ci(self):
-        assert environment.get_current_ci() == 'semaphore'
+        assert self.environment.current_ci == 'semaphore'
