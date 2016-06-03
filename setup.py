@@ -5,11 +5,11 @@ from setuptools import setup
 
 
 requirements = [
-    # TODO: put package requirements here
+    'requests',
 ]
 
 test_requirements = [
-    # TODO: put package test requirements here
+    'requests-mock',
 ]
 
 setup(
@@ -22,7 +22,7 @@ setup(
     packages=[
         'percy',
     ],
-    package_dir={'percy':'percy'},
+    package_dir={'percy': 'percy'},
     include_package_data=True,
     install_requires=requirements,
     license='MIT',
