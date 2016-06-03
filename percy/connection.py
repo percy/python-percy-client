@@ -5,9 +5,12 @@ class Connection(object):
     def __init__(self, config):
         self.config = config
 
+    def _token_header(self):
+        return "Token token={0}".format(self.config.access_token)
+
     def get(self, path, options={}):
         headers = {
-            'Authentication': "Token token={0}".format(self.config.access_token)
+            'Authorization': self._token_header(),
         }
         response = requests.get(path, headers=headers)
         # Exception handling TODO
@@ -16,7 +19,7 @@ class Connection(object):
     def post(self, path, data, options={}):
         headers = {
             'Content-Type': 'application/vnd.api+json',
-            'Authentication': "Token token={0}".format(self.config.access_token)
+            'Authorization': self._token_header(),
         }
-        response = requests.post(path, data=data, headers=headers)
+        response = requests.post(path, json=data, headers=headers)
         return response.json()

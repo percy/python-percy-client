@@ -19,7 +19,8 @@ class Client(object):
     def get_connection(self):
         return self._connection
 
-    def create_build(self, repo, **kwargs):
+    def create_build(self, **kwargs):
+        repo = kwargs.get('repo', self.environment.repo)
         branch = kwargs.get('branch', self.environment.branch)
         pull_request_number = kwargs.get(
             'pull_request_number',

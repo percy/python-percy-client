@@ -1,5 +1,7 @@
 import os
 
+class AuthError(Exception):
+  pass
 
 class Config(object):
 
@@ -9,4 +11,7 @@ class Config(object):
 
     @property
     def access_token(self):
-        return os.getenv('PERCY_TOKEN')
+        access_token = os.getenv('PERCY_TOKEN')
+        if not access_token:
+          raise AuthError('You must set PERCY_TOKEN to authenticate.')
+        return access_token
