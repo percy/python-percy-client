@@ -3,6 +3,9 @@ from percy import config
 import requests_mock
 import unittest
 
+# TODO mock headers
+# TODO localhost url
+
 
 class TestPercyConnection(unittest.TestCase):
     def setUp(self):
