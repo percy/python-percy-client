@@ -1,7 +1,9 @@
 import os
 
+
 class AuthError(Exception):
-  pass
+    pass
+
 
 class Config(object):
 
@@ -10,8 +12,12 @@ class Config(object):
         return os.getenv('PERCY_API', 'https://percy.io/api/v1')
 
     @property
+    def default_widths(self):
+        return []
+
+    @property
     def access_token(self):
         access_token = os.getenv('PERCY_TOKEN')
         if not access_token:
-          raise AuthError('You must set PERCY_TOKEN to authenticate.')
+            raise AuthError('You must set PERCY_TOKEN to authenticate.')
         return access_token

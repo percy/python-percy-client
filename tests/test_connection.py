@@ -3,6 +3,8 @@ import os
 import requests_mock
 import unittest
 
+# TODO mock headers
+# TODO localhost url
 from percy import connection
 from percy import config
 

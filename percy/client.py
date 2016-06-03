@@ -38,6 +38,31 @@ class Client(object):
             base_url=self.config.api_url,
             repo=repo,
         )
-        build_data = self._connection.post(path=path, data=data)
-        return build_data
+        return self._connection.post(path=path, data=data)
 
+    def create_snapshot(self, build_id, resources, **kwargs):
+        if len(resources) <= 0:
+            raise ValueError(
+                'resources should be an array of Percy.Resource objects'
+            )
+        widths = kwargs.get('widths', self.config.default_widths)
+        data = {
+            'data': {
+                'type': 'snapshots',
+                'attributes': {
+                    'name': kwargs.get('name'),
+                    'enable-javascript': kwargs.get('enable_javascript'),
+                    'widths': widths,
+                },
+                'relationship': {
+                    'resources': {
+                        'data': resources.map(lambda r: r.serialize())
+                    }
+                }
+            }
+        }
+        path = "{base_url}/builds/{build_id}/snapshots/".format(
+            base_url=self.config.api_url,
+            build_id=build_id
+        )
+        return self._connection.post(path=path, data=data)
