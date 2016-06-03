@@ -21,7 +21,7 @@ parts/
 sdist/
 var/
 *.egg-info/
-.ropeproject
+.ropeproject/
 .installed.cfg
 *.egg
 
