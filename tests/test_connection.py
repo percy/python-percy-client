@@ -1,11 +1,12 @@
 from percy import connection
+from percy import config
 import requests_mock
 import unittest
 
 
 class TestPercyConnection(unittest.TestCase):
     def setUp(self):
-        self.percy_connection = connection.Connection()
+        self.percy_connection = connection.Connection(config.Config())
 
     @requests_mock.Mocker()
     def test_get(self, mock):
