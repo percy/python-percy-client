@@ -9,9 +9,12 @@ class Resource(object):
         self.resource_url = resource_url
         if 'sha' in kwargs and 'content' in kwargs or not ('sha' in kwargs or 'content' in kwargs):
             raise ValueError('Exactly one of sha or content is required.')
+        # Encode the content if it exists
+        # TODO Encoding does not work correctly with Python version >= 3.
+        self.content = kwargs['content'].encode('utf-8') if kwargs.get('content') else None
         self.sha = kwargs.get(
             'sha',
-            hashlib.sha256(kwargs.get('content')).hexdigest()
+            hashlib.sha256(self.content).hexdigest()
         )
         self.content = kwargs.get('content')
         self.is_root = is_root

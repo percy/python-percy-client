@@ -11,16 +11,22 @@ __all__ = ['Client']
 
 class Client(object):
 
-    def __init__(self, connection=None):
-        self.environment = Environment()
-        self.config = Config()
-        if connection:
-            self._connection = connection
-        else:
-            self._connection = Connection(self.config)
+    def __init__(self, connection=None, config=None, environment=None):
+        self._environment = environment if environment else Environment()
+        self._config = config if config else Config()
+        self._connection = connection if connection else Connection(self.config)
 
-    def get_connection(self):
+    @property
+    def connection(self):
         return self._connection
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def environment(self):
+        return self._environment
 
     def create_build(self, **kwargs):
         repo = kwargs.get('repo') or self.environment.repo
