@@ -26,6 +26,19 @@ class TestPercyClient(unittest.TestCase):
         assert build_data == json.loads(build_fixture)
 
     @requests_mock.Mocker()
+    def test_finalize_build(self, mock):
+        fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'build_response.json')
+        build_fixture = open(fixture_path).read()
+        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
+        mock.post('https://percy.io/api/v1/builds/31/finalize', text='{"success": "true"}')
+
+        build_data = self.percy_client.create_build(repo='foo/bar')
+        print build_data['data']
+        build_id = build_data['data']['id']
+        finalize_response = self.percy_client.finalize_build(build_id=build_id)
+        assert finalize_response == {'success': 'true'}
+
+    @requests_mock.Mocker()
     def test_create_snapshot(self, mock):
         fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'build_response.json')
         build_fixture = open(fixture_path).read()

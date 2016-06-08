@@ -26,7 +26,7 @@ class Client(object):
         repo = kwargs.get('repo') or self.environment.repo
         branch = kwargs.get('branch') or self.environment.branch
         pull_request_number = kwargs.get('pull_request_number') \
-          or self.environment.pull_request_number
+            or self.environment.pull_request_number
 
         data = {
             'data': {
@@ -42,6 +42,13 @@ class Client(object):
             repo=repo,
         )
         return self._connection.post(path=path, data=data)
+
+    def finalize_build(self, build_id):
+        path = "{base_url}/builds/{build_id}/finalize".format(
+            base_url=self.config.api_url,
+            build_id=build_id,
+        )
+        return self._connection.post(path=path, data={})
 
     def create_snapshot(self, build_id, resources, **kwargs):
         if len(resources) <= 0:
