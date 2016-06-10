@@ -11,22 +11,28 @@ __all__ = ['Client']
 
 class Client(object):
 
-    def __init__(self, connection=None):
-        self.environment = Environment()
-        self.config = Config()
-        if connection:
-            self._connection = connection
-        else:
-            self._connection = Connection(self.config)
+    def __init__(self, connection=None, config=None, environment=None):
+        self._environment = environment if environment else Environment()
+        self._config = config if config else Config()
+        self._connection = connection if connection else Connection(self.config)
 
-    def get_connection(self):
+    @property
+    def connection(self):
         return self._connection
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def environment(self):
+        return self._environment
 
     def create_build(self, **kwargs):
         repo = kwargs.get('repo') or self.environment.repo
         branch = kwargs.get('branch') or self.environment.branch
         pull_request_number = kwargs.get('pull_request_number') \
-          or self.environment.pull_request_number
+            or self.environment.pull_request_number
 
         data = {
             'data': {
@@ -42,6 +48,13 @@ class Client(object):
             repo=repo,
         )
         return self._connection.post(path=path, data=data)
+
+    def finalize_build(self, build_id):
+        path = "{base_url}/builds/{build_id}/finalize".format(
+            base_url=self.config.api_url,
+            build_id=build_id,
+        )
+        return self._connection.post(path=path, data={})
 
     def create_snapshot(self, build_id, resources, **kwargs):
         if len(resources) <= 0:

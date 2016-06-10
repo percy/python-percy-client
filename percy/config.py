@@ -6,18 +6,34 @@ class AuthError(Exception):
 
 
 class Config(object):
+    
+    def __init__(self, api_url=None, default_widths=None, access_token=None):
+        self._api_url = os.getenv('PERCY_API', api_url or 'https://percy.io/api/v1')
+        self._default_widths = default_widths or []
+        self._access_token = os.getenv('PERCY_TOKEN', access_token)
 
     @property
     def api_url(self):
-        return os.getenv('PERCY_API', 'https://percy.io/api/v1')
+        return self._api_url
+
+    @api_url.setter
+    def api_url(self, value):
+        self._api_url = value
 
     @property
     def default_widths(self):
-        return []
+        return self._default_widths
+
+    @default_widths.setter
+    def default_widths(self, value):
+        self._default_widths = value
 
     @property
     def access_token(self):
-        access_token = os.getenv('PERCY_TOKEN')
-        if not access_token:
-            raise AuthError('You must set PERCY_TOKEN to authenticate.')
-        return access_token
+        if not self._access_token:
+            raise AuthError('You must set PERCY_TOKEN to authenticate.')        
+        return self._access_token
+
+    @access_token.setter
+    def access_token(self, value):
+        self._access_token = value       
