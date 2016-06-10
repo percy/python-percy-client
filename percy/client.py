@@ -91,7 +91,8 @@ class Client(object):
         return self._connection.post(path=path, data={})
 
     def upload_resource(self, build_id, content):
-        sha = hashlib.sha256(content).hexdigest()
+        # TODO: reevaluate encoding handling for uploading binary files.
+        sha = hashlib.sha256(content.encode('utf-8')).hexdigest()
         data = {
             'data': {
                 'type': 'resources',

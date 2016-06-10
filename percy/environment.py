@@ -1,4 +1,8 @@
 import os
+import re
+import subprocess
+
+from percy import errors
 
 __all__ = ['Environment']
 
@@ -51,6 +55,11 @@ class Environment(object):
         # TODO: `git rev-parse --abbrev-ref HEAD 2> /dev/null`.strip
         return
 
+    def _get_origin_url(self):
+        process = subprocess.Popen(
+            ['git', 'config', '--get', 'remote.origin.url'], stdout=subprocess.PIPE)
+        return process.stdout.read().strip()
+
     @property
     def repo(self):
         if os.getenv('PERCY_REPO_SLUG'):
@@ -58,21 +67,32 @@ class Environment(object):
         if self._real_env and hasattr(self._real_env, 'repo'):
             return self._real_env.repo
 
-        raise NotImplementedError('needs PERCY_REPO_SLUG environment var')
-        # TODO:
-        # origin_url = _get_origin_url.strip
-        # if origin_url == ''
-        #   raise Percy::Client::Environment::RepoNotFoundError.new(
-        #     'No local git repository found. ' +
-        #     'You can manually set PERCY_REPO_SLUG to fix this.')
-        # end
-        # match = origin_url.match(Regexp.new('[:/]([^/]+\/[^/]+?)(\.git)?\Z'))
-        # if !match
-        #   raise Percy::Client::Environment::RepoNotFoundError.new(
-        #     "Could not determine repository name from URL: #{origin_url.inspect}\n" +
-        #     "You can manually set PERCY_REPO_SLUG to fix this.")
-        # end
-        # match[1]
+        origin_url = self._get_origin_url()
+        if not origin_url:
+          raise errors.RepoNotFoundError(
+            'No local git repository found. ' +
+            'You can manually set PERCY_REPO_SLUG to fix this.')
+
+        match = re.compile(r'.*[:/]([^/]+\/[^/]+?)(\.git)?\Z').match(origin_url)
+        if not match:
+          raise errors.RepoNotFoundError(
+            "Could not determine repository name from URL: {0}\n" +
+            "You can manually set PERCY_REPO_SLUG to fix this.".format(origin_url))
+        return match.group(1)
+
+    @property
+    def parallel_nonce(self):
+        if os.getenv('PERCY_PARALLEL_NONCE'):
+          return os.getenv('PERCY_PARALLEL_NONCE')
+        if self._real_env and hasattr(self._real_env, 'parallel_nonce'):
+            return self._real_env.parallel_nonce
+
+    @property
+    def parallel_total_shards(self):
+        if os.getenv('PERCY_PARALLEL_TOTAL'):
+            return int(os.getenv('PERCY_PARALLEL_TOTAL'))
+        if self._real_env and hasattr(self._real_env, 'parallel_total_shards'):
+            return self._real_env.parallel_total_shards
 
 
 class TravisEnvironment(object):
@@ -180,4 +200,3 @@ class SemaphoreEnvironment(object):
     @property
     def repo(self):
       return os.getenv('SEMAPHORE_REPO_SLUG')
-

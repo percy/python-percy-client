@@ -103,6 +103,21 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
 
+    def test_repo(self):
+        # TODO: read repo from CI env.
+        assert self.environment.repo == 'percy/python-percy-client'  # This actual repo name.
+        # Can be overridden with PERCY_REPO_SLUG.
+        os.environ['PERCY_REPO_SLUG'] = 'foo/bar'
+        assert self.environment.repo == 'foo/bar'
+
+    def test_parallel_nonce(self):
+        os.environ['PERCY_PARALLEL_NONCE'] = 'foo'
+        assert self.environment.parallel_nonce == 'foo'
+
+    def test_parallel_total(self):
+        os.environ['PERCY_PARALLEL_TOTAL'] = '2'
+        assert self.environment.parallel_total_shards == 2
+
 
 class TestTravisEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -129,9 +144,14 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'travis-branch'
 
-        # PERCY env vars should take precendence over CI. Checked here once, assume other envs work.
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
+
+    def test_repo(self):
+        assert self.environment.repo == 'travis/repo-slug'
+
+        os.environ['PERCY_REPO_SLUG'] = 'foo'
+        assert self.environment.repo == 'foo'
 
 
 class TestJenkinsEnvironment(BaseTestPercyEnvironment):
@@ -145,6 +165,13 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
 
     def test_current_ci(self):
         assert self.environment.current_ci == 'jenkins'
+
+    def test_branch(self):
+        assert self.environment.branch == 'jenkins-target-branch'
+
+    def test_repo(self):
+        assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
+
 
 
 class TestCircleEnvironment(BaseTestPercyEnvironment):
@@ -166,6 +193,9 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'circle-branch'
 
+    def test_repo(self):
+        assert self.environment.repo == 'circle/repo-name'
+
 
 class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -183,6 +213,9 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'codeship-branch'
 
+    def test_repo(self):
+        assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
+
 
 class TestDroneEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -199,6 +232,9 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'drone-branch'
 
+    def test_repo(self):
+        assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
+
 
 class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -206,7 +242,7 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
         os.environ['SEMAPHORE'] = 'true'
         os.environ['BRANCH_NAME'] = 'semaphore-branch'
         os.environ['REVISION'] = 'semaphore-commit-sha'
-        os.environ['SEMAPHORE_REPO_SLUG'] = 'repo-owner/repo-name'
+        os.environ['SEMAPHORE_REPO_SLUG'] = 'semaphore/repo-name'
         os.environ['SEMAPHORE_BUILD_NUMBER'] = 'semaphore-build-number'
         os.environ['SEMAPHORE_THREAD_COUNT'] = '2'
         os.environ['PULL_REQUEST_NUMBER'] = '123'
@@ -217,3 +253,6 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
 
     def test_branch(self):
         assert self.environment.branch == 'semaphore-branch'
+
+    def test_repo(self):
+        assert self.environment.repo == 'semaphore/repo-name'
