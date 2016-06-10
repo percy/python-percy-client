@@ -152,6 +152,10 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'travis-branch'
 
+        # Triggers special path if PR is set in Travis, see note in environment.py.
+        os.environ['TRAVIS_BRANCH'] = 'master'
+        assert self.environment.branch == 'github-pr-256'
+
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
 
