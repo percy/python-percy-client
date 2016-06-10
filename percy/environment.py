@@ -3,6 +3,7 @@ import re
 import subprocess
 
 from percy import errors
+from percy import utils
 
 __all__ = ['Environment']
 
@@ -48,16 +49,17 @@ class Environment(object):
         if raw_branch_output:
             return raw_branch_output
         # Fourth, fallback to 'master'.
-        # STDERR.puts '[percy] Warning: not in a git repo, setting PERCY_BRANCH to "master".'
+        utils.print_error('[percy] Warning: not in a git repo, setting PERCY_BRANCH to "master".')
         return 'master'
 
     def _raw_branch_output(self):
-        # TODO: `git rev-parse --abbrev-ref HEAD 2> /dev/null`.strip
-        return
+        process = subprocess.Popen(
+            'git rev-parse --abbrev-ref HEAD 2> /dev/null', stdout=subprocess.PIPE, shell=True)
+        return unicode(process.stdout.read().strip())
 
     def _get_origin_url(self):
         process = subprocess.Popen(
-            ['git', 'config', '--get', 'remote.origin.url'], stdout=subprocess.PIPE)
+            'git config --get remote.origin.url', stdout=subprocess.PIPE, shell=True)
         return unicode(process.stdout.read().strip())
 
     @property

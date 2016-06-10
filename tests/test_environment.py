@@ -1,5 +1,6 @@
 import os
 import percy
+import pytest
 
 
 class BaseTestPercyEnvironment(object):
@@ -97,8 +98,15 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_PULL_REQUEST'] = '1234'
         assert self.environment.pull_request_number == '1234'
 
-    def test_branch(self):
+    @pytest.fixture(autouse=True)
+    def test_branch(self, monkeypatch):
+        # Default calls _raw_branch_output and call git underneath, so allow any non-empty string.
+        assert len(self.environment.branch) > 0
+
+        # If git command fails, falls back to "master" and prints warning.
+        monkeypatch.setattr(self.environment, '_raw_branch_output', lambda: '')
         assert self.environment.branch == 'master'
+
         # Can be overridden with PERCY_BRANCH.
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
