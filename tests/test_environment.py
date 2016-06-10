@@ -123,7 +123,7 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
         super(TestTravisEnvironment, self).setup_method(self)
         os.environ['TRAVIS_BUILD_ID'] = '1234'
-        os.environ['TRAVIS_BUILD_NUMBER'] = 'build-number'
+        os.environ['TRAVIS_BUILD_NUMBER'] = 'travis-build-number'
         os.environ['TRAVIS_PULL_REQUEST'] = '256'
         os.environ['TRAVIS_REPO_SLUG'] = 'travis/repo-slug'
         os.environ['TRAVIS_COMMIT'] = 'travis-commit-sha'
@@ -153,6 +153,21 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_REPO_SLUG'] = 'foo'
         assert self.environment.repo == 'foo'
 
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce == 'travis-build-number'
+
+        os.environ['PERCY_PARALLEL_NONCE'] = 'nonce'
+        assert self.environment.parallel_nonce == 'nonce'
+
+    def test_parallel_total(self):
+        assert self.environment.parallel_total_shards == 3
+
+        os.environ['CI_NODE_TOTAL'] = ''
+        assert self.environment.parallel_total_shards == None
+
+        os.environ['PERCY_PARALLEL_TOTAL'] = '1'
+        assert self.environment.parallel_total_shards == 1
+
 
 class TestJenkinsEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -172,6 +187,11 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
     def test_repo(self):
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
 
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce is None
+
+    def test_parallel_total(self):
+        assert self.environment.parallel_total_shards is None
 
 
 class TestCircleEnvironment(BaseTestPercyEnvironment):
@@ -182,7 +202,7 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
         os.environ['CIRCLE_SHA1'] = 'circle-commit-sha'
         os.environ['CIRCLE_PROJECT_USERNAME'] = 'circle'
         os.environ['CIRCLE_PROJECT_REPONAME'] = 'repo-name'
-        os.environ['CIRCLE_BUILD_NUM'] = 'build-number'
+        os.environ['CIRCLE_BUILD_NUM'] = 'circle-build-number'
         os.environ['CIRCLE_NODE_TOTAL'] = '2'
         os.environ['CI_PULL_REQUESTS'] = 'https://github.com/owner/repo-name/pull/123'
         self.environment = percy.Environment()
@@ -195,6 +215,12 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
 
     def test_repo(self):
         assert self.environment.repo == 'circle/repo-name'
+
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce == 'circle-build-number'
+
+    def test_parallel_total(self):
+        assert self.environment.parallel_total_shards == 2
 
 
 class TestCodeshipEnvironment(BaseTestPercyEnvironment):
@@ -216,6 +242,12 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def test_repo(self):
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
 
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce == 'codeship-build-number'
+
+    def test_parallel_total(self):
+        assert self.environment.parallel_total_shards is None
+
 
 class TestDroneEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
@@ -234,6 +266,12 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
 
     def test_repo(self):
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
+
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce is None
+
+    def test_parallel_total(self):
+        assert self.environment.parallel_total_shards is None
 
 
 class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
@@ -256,3 +294,9 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
 
     def test_repo(self):
         assert self.environment.repo == 'semaphore/repo-name'
+
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce == 'semaphore-build-number'
+
+    def test_parallel_total(self):
+        assert self.environment.parallel_total_shards == 2

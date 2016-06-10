@@ -114,6 +114,15 @@ class TravisEnvironment(object):
     def repo(self):
       return os.getenv('TRAVIS_REPO_SLUG')
 
+    @property
+    def parallel_nonce(self):
+        return os.getenv('TRAVIS_BUILD_NUMBER')
+
+    @property
+    def parallel_total_shards(self):
+        if os.getenv('CI_NODE_TOTAL', '').isdigit():
+            return int(os.getenv('CI_NODE_TOTAL'))
+
 
 class JenkinsEnvironment(object):
     @property
@@ -152,6 +161,15 @@ class CircleEnvironment(object):
             os.getenv('CIRCLE_PROJECT_REPONAME'),
         )
 
+    @property
+    def parallel_nonce(self):
+        return os.getenv('CIRCLE_BUILD_NUM')
+
+    @property
+    def parallel_total_shards(self):
+        if os.getenv('CIRCLE_NODE_TOTAL', '').isdigit():
+            return int(os.getenv('CIRCLE_NODE_TOTAL'))
+
 
 class CodeshipEnvironment(object):
     @property
@@ -168,6 +186,10 @@ class CodeshipEnvironment(object):
     @property
     def branch(self):
         return os.getenv('CI_BRANCH')
+
+    @property
+    def parallel_nonce(self):
+        return os.getenv('CI_BUILD_NUMBER')
 
 
 class DroneEnvironment(object):
@@ -200,3 +222,13 @@ class SemaphoreEnvironment(object):
     @property
     def repo(self):
       return os.getenv('SEMAPHORE_REPO_SLUG')
+
+    @property
+    def parallel_nonce(self):
+        return os.getenv('SEMAPHORE_BUILD_NUMBER')
+
+    @property
+    def parallel_total_shards(self):
+        if os.getenv('SEMAPHORE_THREAD_COUNT', '').isdigit():
+            return int(os.getenv('SEMAPHORE_THREAD_COUNT'))
+
