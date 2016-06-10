@@ -57,7 +57,7 @@ class Client(object):
         return self._connection.post(path=path, data={})
 
     def create_snapshot(self, build_id, resources, **kwargs):
-        if len(resources) <= 0:
+        if not resources or len(resources) <= 0:
             raise ValueError(
                 'resources should be an array of Percy.Resource objects'
             )
@@ -72,7 +72,7 @@ class Client(object):
                 },
                 'relationships': {
                     'resources': {
-                        'data': list(map(lambda r: r.serialize(), resources))
+                        'data': [r.serialize() for r in resources],
                     }
                 }
             }
@@ -95,8 +95,8 @@ class Client(object):
         data = {
             'data': {
                 'type': 'resources',
+                'id': sha,
                 'attributes': {
-                    'id': sha,
                     'base64-content': base64.b64encode(content)
                 }
 

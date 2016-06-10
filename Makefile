@@ -53,7 +53,7 @@ test:
 
 tdd:
 	pip install pytest-xdist
-	py.test -f tests
+	py.test -f -v tests
 
 test-all:
 	tox
