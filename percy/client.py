@@ -72,7 +72,7 @@ class Client(object):
                 },
                 'relationships': {
                     'resources': {
-                        'data': map(lambda r: r.serialize(), resources)
+                        'data': list(map(lambda r: r.serialize(), resources))
                     }
                 }
             }
