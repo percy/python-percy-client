@@ -58,7 +58,7 @@ class Environment(object):
     def _get_origin_url(self):
         process = subprocess.Popen(
             ['git', 'config', '--get', 'remote.origin.url'], stdout=subprocess.PIPE)
-        return process.stdout.read().strip()
+        return str(process.stdout.read().strip())
 
     @property
     def repo(self):

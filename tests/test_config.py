@@ -23,8 +23,7 @@ class TestPercyConfig(unittest.TestCase):
         self.assertEqual(self.config.default_widths, (640, 480))
 
         self.config.access_token = None
-        with self.assertRaises(errors.AuthError):
-            self.config.access_token
+        self.assertRaises(errors.AuthError, lambda: self.config.access_token)
 
         self.config.access_token = 'percy123'
         self.assertEqual(self.config.access_token, 'percy123')
