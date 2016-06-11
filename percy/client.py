@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import hashlib
-import base64
 
-from connection import Connection
-from environment import Environment
-from config import Config
+from percy.connection import Connection
+from percy.environment import Environment
+from percy.config import Config
+from percy import utils
 
 __all__ = ['Client']
 
@@ -91,14 +90,13 @@ class Client(object):
         return self._connection.post(path=path, data={})
 
     def upload_resource(self, build_id, content):
-        # TODO: reevaluate encoding handling for uploading binary files.
-        sha = hashlib.sha256(content.encode('utf-8')).hexdigest()
+        sha = utils.sha256hash(content)
         data = {
             'data': {
                 'type': 'resources',
                 'id': sha,
                 'attributes': {
-                    'base64-content': base64.b64encode(content)
+                    'base64-content': utils.base64encode(content),
                 }
 
             }

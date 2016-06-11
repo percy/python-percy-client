@@ -1,4 +1,5 @@
 import hashlib
+from percy import utils
 
 __all__ = ['Resource']
 
@@ -12,10 +13,7 @@ class Resource(object):
         # Encode the content if it exists
         # TODO Encoding does not work correctly with Python version >= 3.
         self.content = kwargs['content'].encode('utf-8') if kwargs.get('content') else None
-        self.sha = kwargs.get(
-            'sha',
-            hashlib.sha256(self.content).hexdigest()
-        )
+        self.sha = kwargs.get('sha', utils.sha256hash(self.content))
         self.content = kwargs.get('content')
         self.is_root = is_root
         self.mimetype = kwargs.get('mimetype')
