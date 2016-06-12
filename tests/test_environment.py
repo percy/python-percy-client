@@ -277,7 +277,6 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
         assert self.environment.branch == 'drone-branch'
 
     def test_repo(self):
-        raise Exception(self.environment._get_origin_url())
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
 
     def test_parallel_nonce(self):

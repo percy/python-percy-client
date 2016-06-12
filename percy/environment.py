@@ -55,12 +55,12 @@ class Environment(object):
     def _raw_branch_output(self):
         process = subprocess.Popen(
             'git rev-parse --abbrev-ref HEAD 2> /dev/null', stdout=subprocess.PIPE, shell=True)
-        return utils.to_unicode(process.stdout.read().strip())
+        return process.stdout.read().strip().decode('utf-8')
 
     def _get_origin_url(self):
         process = subprocess.Popen(
             'git config --get remote.origin.url', stdout=subprocess.PIPE, shell=True)
-        return utils.to_unicode(process.stdout.read().strip())
+        return process.stdout.read().strip().decode('utf-8')
 
     @property
     def repo(self):
