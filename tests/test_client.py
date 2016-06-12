@@ -124,14 +124,14 @@ class TestPercyClient(unittest.TestCase):
         mock.post('https://percy.io/api/v1/builds/123/resources/', text='{"success": "true"}')
 
         content = 'foo'
-        result = self.percy_client.upload_resource(build_id=123, content='foo')
+        result = self.percy_client.upload_resource(build_id=123, content=content)
 
         assert mock.request_history[0].json() == {
             'data': {
                 'type': 'resources',
                 'id': utils.sha256hash(content),
                 'attributes': {
-                    'base64-content': base64.b64encode(content)
+                    'base64-content': utils.base64encode(content)
                 }
 
             }
