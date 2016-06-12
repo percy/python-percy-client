@@ -7,6 +7,7 @@ import unittest
 import requests_mock
 import percy
 from percy import config
+from percy import utils
 
 
 class TestPercyClient(unittest.TestCase):
@@ -128,7 +129,7 @@ class TestPercyClient(unittest.TestCase):
         assert mock.request_history[0].json() == {
             'data': {
                 'type': 'resources',
-                'id': hashlib.sha256(content).hexdigest(),
+                'id': utils.sha256hash(content),
                 'attributes': {
                     'base64-content': base64.b64encode(content)
                 }
