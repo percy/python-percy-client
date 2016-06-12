@@ -21,7 +21,7 @@ def sha256hash(content):
 def base64encode(content):
     if _is_unicode(content):
         content = content.encode('utf-8')
-    return base64.b64encode(content)
+    return to_unicode(base64.b64encode(content))
 
 def _is_unicode(content):
     if (sys.version_info >= (3,0) and isinstance(content, str)
