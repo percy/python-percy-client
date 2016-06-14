@@ -32,6 +32,7 @@ class Client(object):
         branch = kwargs.get('branch') or self.environment.branch
         pull_request_number = kwargs.get('pull_request_number') \
             or self.environment.pull_request_number
+        resources = kwargs.get('resources')
 
         data = {
             'data': {
@@ -42,6 +43,14 @@ class Client(object):
                 }
             }
         }
+
+        if resources:
+            data['data']['relationships'] = {
+                'resources': {
+                    'data': [r.serialize() for r in resources],
+                }
+            }
+
         path = "{base_url}/repos/{repo}/builds/".format(
             base_url=self.config.api_url,
             repo=repo,
