@@ -8,7 +8,7 @@ TEST_FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'testd
 class TestPercyResourceLoader(unittest.TestCase):
     def setUp(self):
         root_dir = os.path.join(TEST_FILES_DIR, 'static')
-        self.resource_loader = ResourceLoader(root_dir=root_dir, base_url='/assets')
+        self.resource_loader = ResourceLoader(root_dir=root_dir, base_url='/assets/')
 
     def test_build_resources(self):
         resources = self.resource_loader.build_resources()

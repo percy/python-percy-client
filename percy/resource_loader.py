@@ -9,6 +9,8 @@ class ResourceLoader(object):
     def __init__(self, root_dir=None, base_url=None):
         self.root_dir = root_dir
         self.base_url = base_url
+        if self.base_url and self.base_url.endswith(os.path.sep):
+            self.base_url = self.base_url[:-1]
 
     def build_resources(self):
         resources = []
