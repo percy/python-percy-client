@@ -31,11 +31,15 @@ class TestPercyClient(unittest.TestCase):
         fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'build_response.json')
         build_fixture = open(fixture_path).read()
         mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
+        resources = [
+            percy.Resource(resource_url='/main.css', is_root=False, content='foo'),
+        ]
 
         build_data = self.percy_client.create_build(
             repo='foo/bar',
             branch='branch',
             pull_request_number=111,
+            resources=resources
         )
         assert mock.request_history[0].json() == {
             'data': {
@@ -43,7 +47,23 @@ class TestPercyClient(unittest.TestCase):
                 'attributes': {
                     'branch': 'branch',
                     'pull-request-number': 111,
+                },
+               'relationships': {
+                    'resources': {
+                        'data': [
+                            {
+                                'type': 'resources',
+                                'id': resources[0].sha,
+                                'attributes': {
+                                    'resource-url': resources[0].resource_url,
+                                    'mimetype': resources[0].mimetype,
+                                    'is-root': resources[0].is_root,
+                                }
+                            }
+                        ],
+                    }
                 }
+
             }
         }
         assert build_data == json.loads(build_fixture)
