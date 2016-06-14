@@ -1,0 +1,28 @@
+from percy import Resource
+import os
+
+__all__ = ['ResourceLoader']
+
+
+class ResourceLoader(object):
+
+    def __init__(self, src_paths=None, base_url=None):
+        self.src_paths = src_paths
+        self.base_url = base_url
+
+    def build_resources(self):
+        resources = []
+        for src_path in self.src_paths:
+            for root, dirs, files in os.walk(src_path, followlinks=True):
+                for file_name in files:
+                    path = os.path.join(root, file_name)
+                    with open(path, 'r+') as f:
+                        content = f.read()
+                        path_for_url = path.replace(src_path, '', 1)
+
+                        resource_url = "{0}{1}".format(self.base_url, path_for_url)
+                        resources.append(Resource(resource_url=resource_url, content=content))
+        return resources
+
+    def snapshot_resources(self):
+        pass
