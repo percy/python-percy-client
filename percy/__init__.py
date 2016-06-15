@@ -5,6 +5,8 @@ __email__ = 'team@percy.io'
 __version__ = '0.1.0'
 
 from client import *
+from config import *
 from environment import *
 from resource import *
 from resource_loader import *
+from runner import *

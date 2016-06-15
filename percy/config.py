@@ -1,6 +1,8 @@
 import os
 from percy import errors
 
+__all__ = ['Config']
+
 
 class Config(object):
 

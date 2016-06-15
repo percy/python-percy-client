@@ -28,6 +28,7 @@ class BaseTestPercyEnvironment(object):
             'PERCY_BRANCH',
             'PERCY_PULL_REQUEST',
             'PERCY_REPO_SLUG',
+            'PERCY_PROJECT',
             'PERCY_PARALLEL_NONCE',
             'PERCY_PARALLEL_TOTAL',
 
@@ -114,7 +115,10 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
     def test_repo(self):
         # TODO: read repo from CI env.
         assert self.environment.repo == 'percy/python-percy-client'  # This actual repo name.
-        # Can be overridden with PERCY_REPO_SLUG.
+        # Can be overridden with PERCY_PROJECT.
+        os.environ['PERCY_PROJECT'] = 'foo/bar-qux'
+        assert self.environment.repo == 'foo/bar-qux'
+        # Deprecated: can be overridden with PERCY_REPO_SLUG.
         os.environ['PERCY_REPO_SLUG'] = 'foo/bar'
         assert self.environment.repo == 'foo/bar'
 

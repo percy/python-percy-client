@@ -1,5 +1,6 @@
-from percy import Resource
 import os
+import percy
+from percy import utils
 
 __all__ = ['ResourceLoader']
 
@@ -12,18 +13,25 @@ class ResourceLoader(object):
         if self.base_url and self.base_url.endswith(os.path.sep):
             self.base_url = self.base_url[:-1]
 
+    @property
     def build_resources(self):
         resources = []
         for root, dirs, files in os.walk(self.root_dir, followlinks=True):
             for file_name in files:
                 path = os.path.join(root, file_name)
-                with open(path, 'r+') as f:
+                with open(path, 'r') as f:
                     content = f.read()
                     path_for_url = path.replace(self.root_dir, '', 1)
 
                     resource_url = "{0}{1}".format(self.base_url, path_for_url)
-                    resources.append(Resource(resource_url=resource_url, content=content))
+                    resource = percy.Resource(
+                        resource_url=resource_url,
+                        sha=utils.sha256hash(content),
+                        local_path=os.path.abspath(path),
+                    )
+                    resources.append(resource)
         return resources
 
+    @property
     def snapshot_resources(self):
         pass

@@ -10,6 +10,9 @@ class TestPercyConfig(unittest.TestCase):
         os.environ['PERCY_TOKEN'] = 'abcd1234'
         self.config = config.Config()
 
+    def tearDown(self):
+        del os.environ['PERCY_TOKEN']
+
     def test_getters(self):
         self.assertEqual(self.config.api_url, 'https://percy.io/api/v1')
         self.assertEqual(self.config.default_widths, [])
@@ -19,8 +22,9 @@ class TestPercyConfig(unittest.TestCase):
         self.config.api_url = 'https://microsoft.com/'
         self.assertEqual(self.config.api_url, 'https://microsoft.com/')
 
-        self.config.default_widths = (640, 480)
-        self.assertEqual(self.config.default_widths, (640, 480))
+        self.assertEqual(self.config.default_widths, [])
+        self.config.default_widths = (1280, 375)
+        self.assertEqual(self.config.default_widths, (1280, 375))
 
         self.config.access_token = None
         self.assertRaises(errors.AuthError, lambda: self.config.access_token)

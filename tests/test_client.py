@@ -6,15 +6,16 @@ import unittest
 
 import requests_mock
 import percy
-from percy import config
 from percy import utils
+
+FIXTURES_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
 
 
 class TestPercyClient(unittest.TestCase):
 
     def setUp(self):
-        os.environ['PERCY_TOKEN'] = 'abcd1234'
-        self.percy_client = percy.Client(config=config.Config(default_widths=(1280, 375)))
+        percy_config = percy.Config(access_token='abcd1234', default_widths=(1280, 375))
+        self.percy_client = percy.Client(config=percy_config)
 
     def test_defaults(self):
         self.assertNotEqual(self.percy_client.connection, None)
@@ -28,7 +29,7 @@ class TestPercyClient(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_create_build(self, mock):
-        fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'build_response.json')
+        fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
         mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
         resources = [
@@ -70,7 +71,7 @@ class TestPercyClient(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_finalize_build(self, mock):
-        fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'build_response.json')
+        fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
         mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
         mock.post('https://percy.io/api/v1/builds/31/finalize', text='{"success": "true"}')
@@ -84,7 +85,7 @@ class TestPercyClient(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_create_snapshot(self, mock):
-        fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'build_response.json')
+        fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
         mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
         build_id = json.loads(build_fixture)['data']['id']
@@ -93,7 +94,7 @@ class TestPercyClient(unittest.TestCase):
             percy.Resource(resource_url='/', is_root=True, content='foo'),
         ]
 
-        fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'build_response.json')
+        fixture_path = os.path.join(FIXTURES_DIR, 'snapshot_response.json')
         mock_data = open(fixture_path).read()
         mock.post('https://percy.io/api/v1/builds/{0}/snapshots/'.format(build_id), text=mock_data)
 

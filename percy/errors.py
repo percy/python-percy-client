@@ -6,3 +6,6 @@ class AuthError(Error):
 
 class RepoNotFoundError(Error):
     pass
+
+class UninitializedBuildError(Error):
+    pass

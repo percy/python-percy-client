@@ -64,8 +64,8 @@ class Environment(object):
 
     @property
     def repo(self):
-        if os.getenv('PERCY_REPO_SLUG'):
-            return os.getenv('PERCY_REPO_SLUG')
+        if os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT'):
+            return os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT')
         if self._real_env and hasattr(self._real_env, 'repo'):
             return self._real_env.repo
 
@@ -73,13 +73,13 @@ class Environment(object):
         if not origin_url:
           raise errors.RepoNotFoundError(
             'No local git repository found. ' +
-            'You can manually set PERCY_REPO_SLUG to fix this.')
+            'You can manually set PERCY_PROJECT=org/repo-name to fix this.')
 
         match = re.compile(r'.*[:/]([^/]+\/[^/]+?)(\.git)?\Z').match(origin_url)
         if not match:
           raise errors.RepoNotFoundError(
             "Could not determine repository name from URL: {0}\n" +
-            "You can manually set PERCY_REPO_SLUG to fix this.".format(origin_url))
+            "You can manually set PERCY_PROJECT=org/repo-name to fix this.".format(origin_url))
         return match.group(1)
 
     @property
