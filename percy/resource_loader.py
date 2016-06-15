@@ -32,7 +32,7 @@ class ResourceLoader(BaseResourceLoader):
         for root, dirs, files in os.walk(self.root_dir, followlinks=True):
             for file_name in files:
                 path = os.path.join(root, file_name)
-                with open(path, 'r') as f:
+                with open(path, 'rb') as f:
                     content = f.read()
                     path_for_url = path.replace(self.root_dir, '', 1)
 

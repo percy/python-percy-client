@@ -37,7 +37,7 @@ class Runner(object):
                 # Optimization: we don't hold all build resources in memory. Instead we store a
                 # "local_path" variable that be used to read the file again if it is needed.
                 if resource.local_path:
-                    with open(resource.local_path, 'r') as f:
+                    with open(resource.local_path, 'rb') as f:
                         content = f.read()
                 else:
                     content = resource.content
