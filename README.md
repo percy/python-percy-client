@@ -84,9 +84,16 @@ per-snapshot basis by passing the `widths` arg to `snapshot()`.
 
 Throw a ★ on it! :)
 
-### Deployment
+### Release procedure (internal)
 
-`git tag v0.X.0 && git push --tags && `
+```bash
+bumpversion patch
+git push
+git push --tags
+pip install twine
+python setup.py sdist
+twine upload dist/percy-<VERSION>.tar.gz
+```
 
 ### Running Tests
 
