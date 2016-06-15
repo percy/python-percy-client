@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import os
 import percy
 from percy import errors
 
@@ -14,7 +15,22 @@ class Runner(object):
         self.client = client or percy.Client(config=self.config)
         self._current_build = None
 
+        self._is_enabled = os.getenv('PERCY_ENABLE', '1') == '1'
+
+        # Sanity check environment and auth setup. If in CI and Percy is disabled, print an error.
+        if self._is_enabled:
+            try:
+                self.client.config.access_token
+            except errors.AuthError:
+                if self.client.environment.current_ci:
+                    utils.print_error('[percy] Warning: Percy is disabled, no PERCY_TOKEN set.')
+                self._is_enabled = False
+
     def initialize_build(self, **kwargs):
+        # Silently pass if Percy is disabled.
+        if not self._is_enabled:
+            return
+
         build_resources = []
         build_resources = self.loader.build_resources if self.loader else []
         sha_to_build_resource = {}
@@ -44,6 +60,9 @@ class Runner(object):
                 self.client.upload_resource(self._current_build['data']['id'], content)
 
     def snapshot(self, **kwargs):
+        # Silently pass if Percy is disabled.
+        if not self._is_enabled:
+            return
         if not self._current_build:
             raise errors.UninitializedBuildError('Cannot call snapshot before build is initialized')
 
@@ -60,9 +79,10 @@ class Runner(object):
 
         self.client.finalize_snapshot(snapshot_data['data']['id'])
 
-        return snapshot_data
-
     def finalize_build(self):
+        # Silently pass if Percy is disabled.
+        if not self._is_enabled:
+            return
         if not self._current_build:
             raise errors.UninitializedBuildError(
                 'Cannot finalize_build before build is initialized.')

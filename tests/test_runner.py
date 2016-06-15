@@ -49,9 +49,10 @@ class TestRunner(unittest.TestCase):
         assert runner.client.config.default_widths == [1280, 375]
 
     @requests_mock.Mocker()
-    def test_auth_error(self, mock):
+    def test_safe_initialize_when_disabled(self, mock):
         runner = percy.Runner()
-        self.assertRaises(errors.AuthError, lambda: runner.initialize_build())
+        assert runner._is_enabled == False
+        runner.initialize_build()
 
     @requests_mock.Mocker()
     def test_initialize_build(self, mock):
@@ -109,9 +110,10 @@ class TestRunner(unittest.TestCase):
             },
         }
 
-    def test_blank_snapshot(self):
+    def test_safe_snapshot_when_disabled(self):
         runner = percy.Runner()
-        self.assertRaises(errors.UninitializedBuildError, lambda: runner.snapshot())
+        assert runner._is_enabled == False
+        runner.snapshot()
 
     @requests_mock.Mocker()
     def test_snapshot(self, mock):
@@ -189,3 +191,8 @@ class TestRunner(unittest.TestCase):
 
         # Whitebox check that the current build data is reset.
         assert runner._current_build == None
+
+    def test_safe_finalize_when_disabled(self):
+        runner = percy.Runner()
+        assert runner._is_enabled == False
+        runner.finalize_build()

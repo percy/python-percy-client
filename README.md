@@ -26,6 +26,8 @@ The following assumes that `webdriver` is a Selenium webdriver object of some so
 First, initialize the build. This must be done at the beginning of the entire test suite.
 
 ```python
+import percy
+
 # Build a ResourceLoader that knows how to collect assets for this application.
 root_static_dir = os.path.join(os.path.dirname(__file__), 'static')
 loader = percy.ResourceLoader(
@@ -34,12 +36,12 @@ loader = percy.ResourceLoader(
   base_url='/assets',
   webdriver=webdriver,
 )
-runner = percy.Runner(loader=loader)
+percy_runner = percy.Runner(loader=loader)
 
-runner.initialize_build()
+percy_runner.initialize_build()
 ```
 
-Now, use `runner.snapshot()` in any test to capture the DOM state and send it to Percy for
+Now, use `percy_runner.snapshot()` in any test to capture the DOM state and send it to Percy for
 rendering and visual regression testing.
 
 ```python
@@ -47,19 +49,19 @@ rendering and visual regression testing.
 # Django's LiveServerTestCase):
 webdriver.get(self.live_server_url)
 
-runner.snapshot()
+percy_runner.snapshot()
 ```
 
 `snapshot` also accepts a `name` to uniquely identify it across builds:
 
 ```python
-runner.snapshot(name='homepage')
+percy_runner.snapshot(name='homepage')
 ```
 
 Then, at the end of the test suite, finalize the build.
 
 ```python
-runner.finalize_build()
+percy_runner.finalize_build()
 ```
 
 ### Responsive testing
@@ -68,7 +70,7 @@ Setup default responsive breakpoints for all snapshots:
 
 ```
 percy_config = percy.Config(default_widths=[1280, 375])
-runner = percy.Runner(loader=loader, config=percy_config)
+percy_runner = percy.Runner(loader=loader, config=percy_config)
 ```
 
 These are the default responsive widths to be used on every snapshot. They can be overridden on a
