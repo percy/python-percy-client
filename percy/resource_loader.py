@@ -5,17 +5,30 @@ from percy import utils
 __all__ = ['ResourceLoader']
 
 
-class ResourceLoader(object):
+class BaseResourceLoader(object):
+    @property
+    def build_resources(self):
+        raise NotImplementedError('subclass must implement abstract method')
 
-    def __init__(self, root_dir=None, base_url=None):
+    @property
+    def snapshot_resources(self):
+        raise NotImplementedError('subclass must implement abstract method')
+
+
+class ResourceLoader(BaseResourceLoader):
+    def __init__(self, root_dir=None, base_url=None, webdriver=None):
         self.root_dir = root_dir
         self.base_url = base_url
         if self.base_url and self.base_url.endswith(os.path.sep):
             self.base_url = self.base_url[:-1]
+        # TODO: more separate loader subclasses and pull out Selenium-specific logic?
+        self.webdriver = webdriver
 
     @property
     def build_resources(self):
         resources = []
+        if not self.root_dir:
+            return resources
         for root, dirs, files in os.walk(self.root_dir, followlinks=True):
             for file_name in files:
                 path = os.path.join(root, file_name)
@@ -34,4 +47,13 @@ class ResourceLoader(object):
 
     @property
     def snapshot_resources(self):
-        pass
+        # Only one snapshot resource, the root page HTML.
+        return [
+            percy.Resource(
+                # Assumes a Selenium webdriver interface.
+                resource_url=self.webdriver.current_url,
+                is_root=True,
+                mimetype='text/html',
+                content=self.webdriver.page_source,
+            )
+        ]

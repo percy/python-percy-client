@@ -14,7 +14,7 @@ FIXTURES_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
 class TestPercyClient(unittest.TestCase):
 
     def setUp(self):
-        percy_config = percy.Config(access_token='abcd1234', default_widths=(1280, 375))
+        percy_config = percy.Config(access_token='abcd1234', default_widths=[1280, 375])
         self.percy_client = percy.Client(config=percy_config)
 
     def test_defaults(self):
@@ -23,9 +23,9 @@ class TestPercyClient(unittest.TestCase):
         self.assertNotEqual(self.percy_client.environment, None)
 
     def test_config_variables(self):
-        self.assertEqual(self.percy_client.config.default_widths, (1280, 375))
-        self.percy_client.config.default_widths = (640, 480)
-        self.assertEqual(self.percy_client.config.default_widths, (640, 480))
+        self.assertEqual(self.percy_client.config.default_widths, [1280, 375])
+        self.percy_client.config.default_widths = [640, 480]
+        self.assertEqual(self.percy_client.config.default_widths, [640, 480])
 
     @requests_mock.Mocker()
     def test_create_build(self, mock):

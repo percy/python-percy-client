@@ -13,12 +13,40 @@ FIXTURES_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
 TEST_FILES_DIR = os.path.join(os.path.dirname(__file__), 'testdata')
 
 
+class FakeWebdriver(object):
+    page_source = 'page source'
+    current_url = '/'
+
+
+SIMPLE_BUILD_FIXTURE = {
+    'data': {
+        'id': '123',
+        'type': 'builds',
+        'relationships': {
+            'self': '/api/v1/builds/123',
+            'missing-resources': {},
+        },
+    },
+}
+
+SIMPLE_SNAPSHOT_FIXTURE = {
+    'data': {
+        'id': '256',
+        'type': 'snapshots',
+        'relationships': {
+            'self': '/api/v1/snapshots/256',
+            'missing-resources': {},
+        },
+    },
+}
+
+
 class TestRunner(unittest.TestCase):
     def test_init(self):
         runner = percy.Runner()
-        self.assertEqual(runner.client.config.default_widths, [])
-        runner = percy.Runner(config=percy.Config(default_widths=(1280, 375)))
-        self.assertEqual(runner.client.config.default_widths, (1280, 375))
+        assert runner.client.config.default_widths == []
+        runner = percy.Runner(config=percy.Config(default_widths=[1280, 375]))
+        assert runner.client.config.default_widths == [1280, 375]
 
     @requests_mock.Mocker()
     def test_auth_error(self, mock):
@@ -32,21 +60,12 @@ class TestRunner(unittest.TestCase):
         config = percy.Config(access_token='foo')
         runner = percy.Runner(config=config, loader=loader)
 
-        build_fixture = {
-            'data': {
-                'id': '123',
-                'type': 'builds',
-                'relationships': {
-                    'self': "/api/v1/snapshots/123",
-                    'missing-resources': {},
-                },
-            },
-        }
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=json.dumps(build_fixture))
+        response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
+        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
         runner.initialize_build(repo='foo/bar')
 
         # Whitebox check that the current build data is set correctly.
-        self.assertEqual(runner._current_build, build_fixture)
+        assert runner._current_build == SIMPLE_BUILD_FIXTURE
 
     @requests_mock.Mocker()
     def test_initialize_build_sends_missing_resources(self, mock):
@@ -90,11 +109,83 @@ class TestRunner(unittest.TestCase):
             },
         }
 
+    def test_blank_snapshot(self):
+        runner = percy.Runner()
+        self.assertRaises(errors.UninitializedBuildError, lambda: runner.snapshot())
 
     @requests_mock.Mocker()
     def test_snapshot(self, mock):
-        runner = percy.Runner()
-        self.assertRaises(errors.UninitializedBuildError, lambda: runner.snapshot('foo'))
+        root_dir = os.path.join(TEST_FILES_DIR, 'static')
+        webdriver = FakeWebdriver()
+        loader = percy.ResourceLoader(root_dir=root_dir, base_url='/assets/', webdriver=webdriver)
+        config = percy.Config(access_token='foo')
+        runner = percy.Runner(config=config, loader=loader)
 
-    def test_finalize_build(self):
-        pass
+        response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
+        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
+        runner.initialize_build(repo='foo/bar')
+
+        # Plain snapshot without a missing resource.
+        response_text = json.dumps(SIMPLE_SNAPSHOT_FIXTURE)
+        mock.post('https://percy.io/api/v1/builds/123/snapshots/', text=response_text)
+        mock.post('https://percy.io/api/v1/snapshots/256/finalize', text='{"success": true}')
+        runner.snapshot()
+
+        # Snapshot with a missing resource.
+        response_text = json.dumps({
+            'data': {
+                'id': '256',
+                'type': 'snapshots',
+                'relationships': {
+                    'self': '/api/v1/snapshots/256',
+                    'missing-resources': {
+                        'data': [
+                            {
+                                'type': 'resources',
+                                'id': loader.snapshot_resources[0].sha,
+                            },
+                        ],
+                    },
+                },
+            },
+        })
+        mock.post('https://percy.io/api/v1/builds/123/snapshots/', text=response_text)
+        mock.post('https://percy.io/api/v1/builds/123/resources/', text='{"success": true}')
+        mock.post('https://percy.io/api/v1/snapshots/256/finalize', text='{"success": true}')
+        runner.snapshot(name='foo', enable_javascript=True, widths=[1280])
+
+        # Assert that kwargs are passed through correctly to create_snapshot.
+        assert mock.request_history[3].json()['data']['attributes'] == {
+            'enable-javascript': True,
+            'name': 'foo',
+            'widths': [1280],
+        }
+
+        # Assert that the snapshot resource was uploaded correctly.
+        assert mock.request_history[4].json() == {
+            'data': {
+                'type': 'resources',
+                'id': loader.snapshot_resources[0].sha,
+                'attributes': {
+                    'base64-content': utils.base64encode(FakeWebdriver.page_source)
+                },
+            },
+        }
+
+    @requests_mock.Mocker()
+    def test_finalize_build(self, mock):
+        config = percy.Config(access_token='foo')
+        runner = percy.Runner(config=config)
+
+        self.assertRaises(errors.UninitializedBuildError, lambda: runner.finalize_build())
+
+        response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
+        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
+        runner.initialize_build(repo='foo/bar')
+
+        mock.post('https://percy.io/api/v1/builds/123/finalize', text='{"success": true}')
+        runner.finalize_build()
+        assert mock.request_history[1].json() == {}
+
+        # Whitebox check that the current build data is reset.
+        assert runner._current_build == None

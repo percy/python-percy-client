@@ -17,7 +17,9 @@ class Runner(object):
     def initialize_build(self, **kwargs):
         build_resources = []
         build_resources = self.loader.build_resources if self.loader else []
-        sha_to_build_resource = {r.sha: r for r in build_resources}
+        sha_to_build_resource = {}
+        for build_resource in build_resources:
+            sha_to_build_resource[build_resource.sha] = build_resource
 
         self._current_build = self.client.create_build(resources=build_resources, **kwargs)
 
@@ -31,6 +33,9 @@ class Runner(object):
             # A nicer error will be raised by the finalize API when the resource is still missing.
             if resource:
                 print('Uploading new build resource: {}'.format(resource.resource_url))
+
+                # Optimization: we don't hold all build resources in memory. Instead we store a
+                # "local_path" variable that be used to read the file again if it is needed.
                 if resource.local_path:
                     with open(resource.local_path, 'r') as f:
                         content = f.read()
@@ -38,27 +43,28 @@ class Runner(object):
                     content = resource.content
                 self.client.upload_resource(self._current_build['data']['id'], content)
 
-    def snapshot(self, name):
+    def snapshot(self, **kwargs):
         if not self._current_build:
             raise errors.UninitializedBuildError('Cannot call snapshot before build is initialized')
 
-        # resources = [
-        #     percy.Resource(
-        #         resource_url='/',
-        #         is_root=True,
-        #         mimetype='text/html',
-        #         content=self.browser.page_source,
-        #     ),
-        # ]
-        # sha_to_resource = {r.sha: r for r in resources}
-        # snapshot_data = self.client.create_snapshot(build_data['data']['id'], resources)
+        root_resource = self.loader.snapshot_resources[0]
+        build_id = self._current_build['data']['id']
+        snapshot_data = self.client.create_snapshot(build_id, [root_resource], **kwargs)
 
-        # for missing_resource in snapshot_data['data']['relationships']['missing-resources']['data']:
-        #     self.client.upload_resource(build_id, sha_to_resource[missing_resource['id']].content)
+        missing_resources = snapshot_data['data']['relationships']['missing-resources']
+        missing_resources = missing_resources.get('data', [])
 
-        # self.client.finalize_snapshot(snapshot_data['data']['id'])
-        pass
+        if missing_resources:
+            # There can only be one missing resource in this case, the root_resource.
+            self.client.upload_resource(build_id, root_resource.content)
+
+        self.client.finalize_snapshot(snapshot_data['data']['id'])
+
+        return snapshot_data
 
     def finalize_build(self):
-        # self.client.finalize_build(build_id)
-        pass
+        if not self._current_build:
+            raise errors.UninitializedBuildError(
+                'Cannot finalize_build before build is initialized.')
+        self.client.finalize_build(self._current_build['data']['id'])
+        self._current_build = None
