@@ -14,8 +14,8 @@ test_requirements = [
 
 setup(
     name='percy',
-    version='0.1.0',
-    description='Python client library for Percy.',
+    version='0.2.0',
+    description='Python client library for Percy (https://percy.io).',
     author='Perceptual Inc.',
     author_email='team@percy.io',
     url='https://github.com/percy/python-percy-client',
