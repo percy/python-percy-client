@@ -90,9 +90,7 @@ Throw a ★ on it! :)
 bumpversion patch
 git push
 git push --tags
-pip install twine
-python setup.py sdist
-twine upload dist/percy-<VERSION>.tar.gz
+python setup.py register sdist upload
 ```
 
 ### Running Tests
