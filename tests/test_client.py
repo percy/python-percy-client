@@ -36,18 +36,14 @@ class TestPercyClient(unittest.TestCase):
             percy.Resource(resource_url='/main.css', is_root=False, content='foo'),
         ]
 
-        build_data = self.percy_client.create_build(
-            repo='foo/bar',
-            branch='branch',
-            pull_request_number=111,
-            resources=resources
-        )
+        build_data = self.percy_client.create_build(repo='foo/bar', resources=resources)
         assert mock.request_history[0].json() == {
             'data': {
                 'type': 'builds',
                 'attributes': {
-                    'branch': 'branch',
-                    'pull-request-number': 111,
+                    'branch': self.percy_client.environment.branch,
+                    'commit-sha': self.percy_client.environment.commit_sha,
+                    'pull-request-number': self.percy_client.environment.pull_request_number,
                 },
                'relationships': {
                     'resources': {

@@ -30,6 +30,7 @@ class Client(object):
     def create_build(self, **kwargs):
         repo = kwargs.get('repo') or self.environment.repo
         branch = kwargs.get('branch') or self.environment.branch
+        commit_sha = kwargs.get('commit_sha') or self.environment.commit_sha
         pull_request_number = kwargs.get('pull_request_number') \
             or self.environment.pull_request_number
         resources = kwargs.get('resources')
@@ -39,6 +40,7 @@ class Client(object):
                 'type': 'builds',
                 'attributes': {
                     'branch': branch,
+                    'commit-sha': commit_sha,
                     'pull-request-number': pull_request_number,
                 }
             }

@@ -63,6 +63,15 @@ class Environment(object):
         return process.stdout.read().strip().decode('utf-8')
 
     @property
+    def commit_sha(self):
+        # First, percy env var.
+        if os.getenv('PERCY_COMMIT'):
+            return os.getenv('PERCY_COMMIT')
+        # Second, from the CI environment.
+        if self._real_env and hasattr(self._real_env, 'commit_sha'):
+            return self._real_env.commit_sha
+
+    @property
     def repo(self):
         if os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT'):
             return os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT')
@@ -120,7 +129,11 @@ class TravisEnvironment(object):
 
     @property
     def repo(self):
-      return os.getenv('TRAVIS_REPO_SLUG')
+        return os.getenv('TRAVIS_REPO_SLUG')
+
+    @property
+    def commit_sha(self):
+        return os.getenv('TRAVIS_COMMIT')
 
     @property
     def parallel_nonce(self):
@@ -144,7 +157,11 @@ class JenkinsEnvironment(object):
 
     @property
     def branch(self):
-      return os.getenv('ghprbTargetBranch')
+        return os.getenv('ghprbTargetBranch')
+
+    @property
+    def commit_sha(self):
+        return os.getenv('ghprbActualCommit') or os.getenv('GIT_COMMIT')
 
 
 class CircleEnvironment(object):
@@ -168,6 +185,10 @@ class CircleEnvironment(object):
             os.getenv('CIRCLE_PROJECT_USERNAME'),
             os.getenv('CIRCLE_PROJECT_REPONAME'),
         )
+
+    @property
+    def commit_sha(self):
+        return os.getenv('CIRCLE_SHA1')
 
     @property
     def parallel_nonce(self):
@@ -196,6 +217,10 @@ class CodeshipEnvironment(object):
         return os.getenv('CI_BRANCH')
 
     @property
+    def commit_sha(self):
+        return os.getenv('CI_COMMIT_ID')
+
+    @property
     def parallel_nonce(self):
         return os.getenv('CI_BUILD_NUMBER')
 
@@ -213,6 +238,9 @@ class DroneEnvironment(object):
     def branch(self):
         return os.getenv('DRONE_BRANCH')
 
+    @property
+    def commit_sha(self):
+        return os.getenv('DRONE_COMMIT')
 
 class SemaphoreEnvironment(object):
     @property
@@ -230,6 +258,10 @@ class SemaphoreEnvironment(object):
     @property
     def repo(self):
       return os.getenv('SEMAPHORE_REPO_SLUG')
+
+    @property
+    def commit_sha(self):
+        return os.getenv('REVISION')
 
     @property
     def parallel_nonce(self):

@@ -46,6 +46,7 @@ class BaseTestPercyEnvironment(object):
             'ghprbPullId',
             'ghprbActualCommit',
             'ghprbTargetBranch',
+            'GIT_COMMIT',
 
             # Unset Circle CI vars.
             'CIRCLECI',
@@ -113,7 +114,6 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         assert self.environment.branch == 'foo'
 
     def test_repo(self):
-        # TODO: read repo from CI env.
         assert self.environment.repo == 'percy/python-percy-client'  # This actual repo name.
         # Can be overridden with PERCY_PROJECT.
         os.environ['PERCY_PROJECT'] = 'foo/bar-qux'
@@ -121,6 +121,12 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         # Deprecated: can be overridden with PERCY_REPO_SLUG.
         os.environ['PERCY_REPO_SLUG'] = 'foo/bar'
         assert self.environment.repo == 'foo/bar'
+
+    def test_commit_sha(self):
+        assert not self.environment.commit_sha
+        # Can be overridden with PERCY_COMMIT.
+        os.environ['PERCY_COMMIT'] = 'commit-sha'
+        assert self.environment.commit_sha == 'commit-sha'
 
     def test_parallel_nonce(self):
         os.environ['PERCY_PARALLEL_NONCE'] = 'foo'
@@ -169,6 +175,11 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_REPO_SLUG'] = 'foo'
         assert self.environment.repo == 'foo'
 
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'travis-commit-sha'
+        os.environ['PERCY_COMMIT'] = 'commit-sha'
+        assert self.environment.commit_sha == 'commit-sha'
+
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'travis-build-number'
 
@@ -191,7 +202,8 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
         os.environ['JENKINS_URL'] = 'http://localhost:8080/'
         os.environ['ghprbPullId'] = '123'
         os.environ['ghprbTargetBranch'] = 'jenkins-target-branch'
-        os.environ['ghprbActualCommit'] = 'jenkins-actual-commit'
+        os.environ['ghprbActualCommit'] = 'jenkins-commit-sha'
+        os.environ['GIT_COMMIT'] = 'jenkins-commit-sha-from-git-plugin'
         self.environment = percy.Environment()
 
     def test_current_ci(self):
@@ -202,6 +214,11 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
 
     def test_repo(self):
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
+
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'jenkins-commit-sha'
+        del os.environ['ghprbActualCommit']
+        assert self.environment.commit_sha == 'jenkins-commit-sha-from-git-plugin'
 
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce is None
@@ -232,6 +249,9 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
     def test_repo(self):
         assert self.environment.repo == 'circle/repo-name'
 
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'circle-commit-sha'
+
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'circle-build-number'
 
@@ -258,6 +278,9 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def test_repo(self):
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
 
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'codeship-commit-sha'
+
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'codeship-build-number'
 
@@ -282,6 +305,9 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
 
     def test_repo(self):
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
+
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'drone-commit-sha'
 
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce is None
@@ -310,6 +336,9 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
 
     def test_repo(self):
         assert self.environment.repo == 'semaphore/repo-name'
+
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'semaphore-commit-sha'
 
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'semaphore-build-number'

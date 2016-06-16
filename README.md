@@ -76,6 +76,10 @@ percy_runner = percy.Runner(loader=loader, config=percy_config)
 These are the default responsive widths to be used on every snapshot. They can be overridden on a
 per-snapshot basis by passing the `widths` arg to `snapshot()`.
 
+## Troubleshooting
+
+To temporarily disable Percy in CI, set the `PERCY_ENABLE=0` environment variable.
+
 ## Contributing
 
 1. Fork it ( https://github.com/percy/python-percy-client/fork )
