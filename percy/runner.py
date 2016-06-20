@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import percy
 from percy import errors
+from percy import utils
 
 __all__ = ['Runner']
 
