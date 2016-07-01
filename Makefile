@@ -66,6 +66,10 @@ coverage:
 	$(BROWSER) htmlcov/index.html
 
 release: clean
+	bumpversion patch
+	git push
+	git push --tags
+	python setup.py register
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 

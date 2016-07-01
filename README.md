@@ -90,15 +90,6 @@ To temporarily disable Percy in CI, set the `PERCY_ENABLE=0` environment variabl
 
 Throw a ★ on it! :)
 
-### Release procedure (internal)
-
-```bash
-bumpversion patch
-git push
-git push --tags
-python setup.py register sdist upload
-```
-
 ### Running Tests
 
 * `make develop` (to install dependencies)
