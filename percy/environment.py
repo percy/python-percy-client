@@ -224,6 +224,11 @@ class CodeshipEnvironment(object):
     def parallel_nonce(self):
         return os.getenv('CI_BUILD_NUMBER')
 
+    @property
+    def parallel_total_shards(self):
+        if os.getenv('CI_NODE_TOTAL', '').isdigit():
+            return int(os.getenv('CI_NODE_TOTAL'))
+
 
 class DroneEnvironment(object):
     @property

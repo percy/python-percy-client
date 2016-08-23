@@ -63,6 +63,7 @@ class BaseTestPercyEnvironment(object):
             'CI_PULL_REQUEST',
             'CI_COMMIT_ID',
             'CI_BUILD_NUMBER',
+            'CI_NODE_TOTAL',
 
             # Unset Drone vars.
             'CI',
@@ -236,7 +237,7 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
         os.environ['CIRCLE_PROJECT_USERNAME'] = 'circle'
         os.environ['CIRCLE_PROJECT_REPONAME'] = 'repo-name'
         os.environ['CIRCLE_BUILD_NUM'] = 'circle-build-number'
-        os.environ['CIRCLE_NODE_TOTAL'] = '2'
+        os.environ['CIRCLE_NODE_TOTAL'] = '3'
         os.environ['CI_PULL_REQUESTS'] = 'https://github.com/owner/repo-name/pull/123'
         self.environment = percy.Environment()
 
@@ -256,7 +257,7 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
         assert self.environment.parallel_nonce == 'circle-build-number'
 
     def test_parallel_total(self):
-        assert self.environment.parallel_total_shards == 2
+        assert self.environment.parallel_total_shards == 3
 
 
 class TestCodeshipEnvironment(BaseTestPercyEnvironment):
@@ -267,6 +268,7 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
         os.environ['CI_BUILD_NUMBER'] = 'codeship-build-number'
         os.environ['CI_PULL_REQUEST'] = 'false'  # This is always false on Codeship, unfortunately.
         os.environ['CI_COMMIT_ID'] = 'codeship-commit-sha'
+        os.environ['CI_NODE_TOTAL'] = '3'
         self.environment = percy.Environment()
 
     def test_current_ci(self):
@@ -285,7 +287,7 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
         assert self.environment.parallel_nonce == 'codeship-build-number'
 
     def test_parallel_total(self):
-        assert self.environment.parallel_total_shards is None
+        assert self.environment.parallel_total_shards == 3
 
 
 class TestDroneEnvironment(BaseTestPercyEnvironment):

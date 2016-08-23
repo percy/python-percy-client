@@ -29,3 +29,16 @@ class TestPercyConnection(unittest.TestCase):
 
         auth_header = mock.request_history[0].headers['Authorization']
         assert auth_header == 'Token token=foo'
+
+    # @requests_mock.Mocker()
+    # def test_post_error(self, mock):
+    #     mock.post('http://api.percy.io', text='{"error":"foo"}', status_code=500)
+    #     try:
+    #         data = self.percy_connection.post(
+    #             'http://api.percy.io',
+    #             data='{"data": "data"}'
+    #         )
+    #     except:
+    #         return
+    #     else:
+    #         raise Exception('Error not raised')

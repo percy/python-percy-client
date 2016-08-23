@@ -13,7 +13,6 @@ class Connection(object):
             'Authorization': self._token_header(),
         }
         response = requests.get(path, headers=headers)
-        # Exception handling TODO
         return response.json()
 
     def post(self, path, data, options={}):
@@ -22,4 +21,6 @@ class Connection(object):
             'Authorization': self._token_header(),
         }
         response = requests.post(path, json=data, headers=headers)
+        # TODO(fotinakis): exception handling.
+        # response.raise_for_status()
         return response.json()
