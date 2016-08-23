@@ -65,8 +65,16 @@ coverage:
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
-release: clean
+bumpversion_patch: clean
 	bumpversion patch
+
+bumpversion_minor: clean
+	bumpversion minor
+
+bumpversion_major: clean
+	bumpversion major
+
+release: clean
 	git push
 	git push --tags
 	python setup.py register
