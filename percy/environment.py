@@ -294,6 +294,9 @@ class BuildkiteEnvironment(object):
 
     @property
     def commit_sha(self):
+        if os.getenv('BUILDKITE_COMMIT') == 'HEAD':
+            # Buildkite mixes SHAs and non-SHAs in BUILDKITE_COMMIT, so we return null if non-SHA.
+            return
         return os.getenv('BUILDKITE_COMMIT')
 
     @property

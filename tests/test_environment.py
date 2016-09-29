@@ -384,6 +384,9 @@ class TestBuildkiteEnvironment(BaseTestPercyEnvironment):
 
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'buildkite-commit-sha'
+        os.environ['BUILDKITE_COMMIT'] = 'HEAD'
+        assert self.environment.commit_sha is None
+
 
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'buildkite-build-id'
