@@ -23,6 +23,8 @@ class Environment(object):
             self._real_env = DroneEnvironment()
         elif os.getenv('SEMAPHORE') == 'true':
             self._real_env = SemaphoreEnvironment()
+        elif os.getenv('BUILDKITE') == 'true':
+            self._real_env = BuildkiteEnvironment()
 
     @property
     def current_ci(self):
@@ -245,6 +247,7 @@ class DroneEnvironment(object):
     def commit_sha(self):
         return os.getenv('DRONE_COMMIT')
 
+
 class SemaphoreEnvironment(object):
     @property
     def current_ci(self):
@@ -275,3 +278,24 @@ class SemaphoreEnvironment(object):
         if os.getenv('SEMAPHORE_THREAD_COUNT', '').isdigit():
             return int(os.getenv('SEMAPHORE_THREAD_COUNT'))
 
+
+class BuildkiteEnvironment(object):
+    @property
+    def current_ci(self):
+        return 'buildkite'
+
+    @property
+    def pull_request_number(self):
+        return os.getenv('BUILDKITE_PULL_REQUEST')
+
+    @property
+    def branch(self):
+        return os.getenv('BUILDKITE_BRANCH')
+
+    @property
+    def commit_sha(self):
+        return os.getenv('BUILDKITE_COMMIT')
+
+    @property
+    def parallel_nonce(self):
+        return os.getenv('BUILDKITE_BUILD_ID')
