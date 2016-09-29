@@ -119,12 +119,8 @@ class TravisEnvironment(object):
 
     @property
     def branch(self):
-        # Note: this is very unfortunately necessary because Travis does not expose the head branch,
-        # only the targeted branch in TRAVIS_BRANCH and no way to get the actual head PR branch.
-        # We create a fake branch name so that Percy does not mistake this PR as a new master build.
-        # https://github.com/travis-ci/travis-ci/issues/1633#issuecomment-194749671
-        if self.pull_request_number and os.getenv('TRAVIS_BRANCH') == 'master':
-          return "github-pr-{0}".format(self.pull_request_number)
+        if self.pull_request_number and os.getenv('TRAVIS_PULL_REQUEST_BRANCH'):
+            return os.getenv('TRAVIS_PULL_REQUEST_BRANCH')
         return os.getenv('TRAVIS_BRANCH')
 
     @property
@@ -133,6 +129,8 @@ class TravisEnvironment(object):
 
     @property
     def commit_sha(self):
+        if self.pull_request_number and os.getenv('TRAVIS_PULL_REQUEST_SHA'):
+            return os.getenv('TRAVIS_PULL_REQUEST_SHA')
         return os.getenv('TRAVIS_COMMIT')
 
     @property
