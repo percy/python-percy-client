@@ -364,3 +364,26 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
 
     def test_parallel_total(self):
         assert self.environment.parallel_total_shards == 2
+
+
+class TestBuildkiteEnvironment(BaseTestPercyEnvironment):
+    def setup_method(self, method):
+        super(TestBuildkiteEnvironment, self).setup_method(self)
+        os.environ['BUILDKITE'] = 'true'
+        os.environ['BUILDKITE_COMMIT'] = 'buildkite-commit-sha'
+        os.environ['BUILDKITE_BRANCH'] = 'buildkite-branch'
+        os.environ['BUILDKITE_PULL_REQUEST'] = 'false'
+        os.environ['BUILDKITE_BUILD_ID'] = 'buildkite-build-id'
+        self.environment = percy.Environment()
+
+    def test_current_ci(self):
+        assert self.environment.current_ci == 'buildkite'
+
+    def test_branch(self):
+        assert self.environment.branch == 'buildkite-branch'
+
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'buildkite-commit-sha'
+
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce == 'buildkite-build-id'
