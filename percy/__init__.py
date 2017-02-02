@@ -4,9 +4,9 @@ __author__ = 'Perceptual Inc.'
 __email__ = 'team@percy.io'
 __version__ = '0.4.1'
 
-from client import *
-from config import *
-from environment import *
-from resource import *
-from resource_loader import *
-from runner import *
+from percy.client import *
+from percy.config import *
+from percy.environment import *
+from percy.resource import *
+from percy.resource_loader import *
+from percy.runner import *
