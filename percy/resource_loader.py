@@ -4,6 +4,8 @@ from percy import utils
 
 __all__ = ['ResourceLoader']
 
+MAX_FILESIZE_BYTES = 15 * 1024**2  # 15 MiB.
+
 
 class BaseResourceLoader(object):
     @property
@@ -32,6 +34,8 @@ class ResourceLoader(BaseResourceLoader):
         for root, dirs, files in os.walk(self.root_dir, followlinks=True):
             for file_name in files:
                 path = os.path.join(root, file_name)
+                if os.path.getsize(path) > MAX_FILESIZE_BYTES:
+                    continue
                 with open(path, 'rb') as f:
                     content = f.read()
                     path_for_url = path.replace(self.root_dir, '', 1)
