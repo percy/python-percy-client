@@ -2,7 +2,7 @@
 
 __author__ = 'Perceptual Inc.'
 __email__ = 'team@percy.io'
-__version__ = '0.4.3'
+__version__ = '0.4.4'
 
 from percy.client import *
 from percy.config import *
