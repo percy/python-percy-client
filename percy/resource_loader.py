@@ -1,10 +1,11 @@
-from future.standard_library import install_aliases
-install_aliases()
-
 import os
 import percy
-from urllib.parse import urlparse
 from percy import utils
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 __all__ = ['ResourceLoader']
 
