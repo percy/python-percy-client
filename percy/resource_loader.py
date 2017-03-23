@@ -1,5 +1,6 @@
 import os
 import percy
+import urlparse
 from percy import utils
 
 __all__ = ['ResourceLoader']
@@ -55,7 +56,7 @@ class ResourceLoader(BaseResourceLoader):
         return [
             percy.Resource(
                 # Assumes a Selenium webdriver interface.
-                resource_url=self.webdriver.current_url,
+                resource_url=urlparse.urlparse(self.webdriver.current_url).path,
                 is_root=True,
                 mimetype='text/html',
                 content=self.webdriver.page_source,
