@@ -2,6 +2,11 @@ import os
 import percy
 from percy import utils
 
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
 __all__ = ['ResourceLoader']
 
 MAX_FILESIZE_BYTES = 15 * 1024**2  # 15 MiB.
@@ -55,7 +60,7 @@ class ResourceLoader(BaseResourceLoader):
         return [
             percy.Resource(
                 # Assumes a Selenium webdriver interface.
-                resource_url=self.webdriver.current_url,
+                resource_url=urlparse(self.webdriver.current_url).path,
                 is_root=True,
                 mimetype='text/html',
                 content=self.webdriver.page_source,
