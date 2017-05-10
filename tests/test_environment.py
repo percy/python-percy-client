@@ -374,6 +374,7 @@ class TestBuildkiteEnvironment(BaseTestPercyEnvironment):
         os.environ['BUILDKITE_BRANCH'] = 'buildkite-branch'
         os.environ['BUILDKITE_PULL_REQUEST'] = 'false'
         os.environ['BUILDKITE_BUILD_ID'] = 'buildkite-build-id'
+        os.environ['BUILDKITE_PARALLEL_JOB_COUNT'] = '2'
         self.environment = percy.Environment()
 
     def test_current_ci(self):
@@ -390,3 +391,6 @@ class TestBuildkiteEnvironment(BaseTestPercyEnvironment):
 
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'buildkite-build-id'
+
+    def test_parallel_total(self):
+        assert self.environment.parallel_total_shards == 2
