@@ -302,3 +302,8 @@ class BuildkiteEnvironment(object):
     @property
     def parallel_nonce(self):
         return os.getenv('BUILDKITE_BUILD_ID')
+    
+    @property
+    def parallel_total_shards(self):
+        if os.getenv('BUILDKITE_PARALLEL_JOB_COUNT', '').isdigit():
+            return int(os.getenv('BUILDKITE_PARALLEL_JOB_COUNT'))
