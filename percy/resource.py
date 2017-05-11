@@ -1,4 +1,3 @@
-import hashlib
 from percy import utils
 
 __all__ = ['Resource']
