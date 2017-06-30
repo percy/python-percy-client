@@ -32,7 +32,7 @@ class Connection(object):
     def _user_agent(self):
         client = ' '.join(filter(None, [
           "Percy/%s" % self._api_version(),
-          "percy-client/%s" % self._client_version(),
+          "python-percy-client/%s" % self._client_version(),
         ]))
 
         environment = '; '.join(filter(None, [
