@@ -1,4 +1,3 @@
-# from IPython import embed
 import re
 import percy
 
@@ -36,7 +35,7 @@ class UserAgent(object):
             import django
             return "django/%s" % django.get_version()
         except ImportError:
-            return None
+            return 'unknown'
 
     def _api_version(self):
         return re.search('\w+$', self.client.config.api_url).group(0)
