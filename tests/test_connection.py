@@ -9,7 +9,7 @@ class TestPercyConnection(unittest.TestCase):
     def setUp(self):
         self.percy_connection = connection.Connection(
             percy.Config(access_token='foo'),
-            percy.Environment()
+            "Percy/v1 percy-client/0.4.5 (django/1.9.4; python/2.7.13)"
         )
 
     @requests_mock.Mocker()

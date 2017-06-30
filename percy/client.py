@@ -3,6 +3,7 @@
 from percy.connection import Connection
 from percy.environment import Environment
 from percy.config import Config
+from percy.user_agent import UserAgent
 from percy import utils
 
 __all__ = ['Client']
@@ -13,7 +14,8 @@ class Client(object):
     def __init__(self, connection=None, config=None, environment=None):
         self._environment = environment if environment else Environment()
         self._config = config if config else Config()
-        self._connection = connection if connection else Connection(self.config, self._environment)
+        self._user_agent = str(UserAgent(self))
+        self._connection = connection if connection else Connection(self.config, self._user_agent)
 
     @property
     def connection(self):
@@ -26,6 +28,10 @@ class Client(object):
     @property
     def environment(self):
         return self._environment
+
+    @property
+    def user_agent(self):
+        return self._user_agent
 
     def create_build(self, **kwargs):
         repo = kwargs.get('repo') or self.environment.repo
