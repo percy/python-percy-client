@@ -52,12 +52,15 @@ class Connection(object):
         return python_version()
 
     def _django_version(self):
-        import django
-        return django.get_version()
+        try:
+            import django
+            return "django/%s" % django.get_version()
+        except ImportError:
+            return None
 
     def _api_version(self):
         return re.search('\w+$', self.config.api_url).group(0)
 
     def _environment_info(self):
         # we only detect django right now others could be added
-        return "django/%s" % self._django_version()
+        return self._django_version()
