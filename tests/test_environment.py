@@ -60,6 +60,7 @@ class BaseTestPercyEnvironment(object):
             'CIRCLE_PROJECT_REPONAME',
             'CIRCLE_BUILD_NUM',
             'CI_PULL_REQUESTS',
+            'CIRCLE_NODE_TOTAL',
 
             # Unset Codeship vars.
             'CI_NAME',
@@ -84,7 +85,16 @@ class BaseTestPercyEnvironment(object):
             'SEMAPHORE_REPO_SLUG',
             'SEMAPHORE_BUILD_NUMBER',
             'SEMAPHORE_CURRENT_THREAD',
+            'SEMAPHORE_THREAD_COUNT',
             'PULL_REQUEST_NUMBER',
+
+            # Unset Buildkite vars
+            'BUILDKITE',
+            'BUILDKITE_COMMIT',
+            'BUILDKITE_BRANCH',
+            'BUILDKITE_PULL_REQUEST',
+            'BUILDKITE_BUILD_ID',
+            'BUILDKITE_PARALLEL_JOB_COUNT',
         ]
         for env_var in all_possible_env_vars:
             if os.getenv(env_var):

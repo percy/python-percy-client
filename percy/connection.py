@@ -1,9 +1,10 @@
 import requests
-
+from percy.user_agent import UserAgent
 
 class Connection(object):
-    def __init__(self, config):
+    def __init__(self, config, environment):
         self.config = config
+        self.user_agent = str(UserAgent(config, environment))
 
     def _token_header(self):
         return "Token token={0}".format(self.config.access_token)
@@ -11,6 +12,7 @@ class Connection(object):
     def get(self, path, options={}):
         headers = {
             'Authorization': self._token_header(),
+            'User-Agent': self.user_agent,
         }
         response = requests.get(path, headers=headers)
         return response.json()
@@ -19,6 +21,7 @@ class Connection(object):
         headers = {
             'Content-Type': 'application/vnd.api+json',
             'Authorization': self._token_header(),
+            'User-Agent': self.user_agent,
         }
         response = requests.post(path, json=data, headers=headers)
         # TODO(fotinakis): exception handling.
