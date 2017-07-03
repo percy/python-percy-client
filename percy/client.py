@@ -3,7 +3,6 @@
 from percy.connection import Connection
 from percy.environment import Environment
 from percy.config import Config
-from percy.user_agent import UserAgent
 from percy import utils
 
 __all__ = ['Client']
@@ -14,8 +13,7 @@ class Client(object):
     def __init__(self, connection=None, config=None, environment=None):
         self._environment = environment if environment else Environment()
         self._config = config if config else Config()
-        self._user_agent = str(UserAgent(self))
-        self._connection = connection if connection else Connection(self.config, self._user_agent)
+        self._connection = connection if connection else Connection(self)
 
     @property
     def connection(self):

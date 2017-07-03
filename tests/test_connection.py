@@ -7,10 +7,10 @@ from percy import connection
 
 class TestPercyConnection(unittest.TestCase):
     def setUp(self):
-        self.percy_connection = connection.Connection(
-            percy.Config(access_token='foo'),
-            "Percy/v1 percy-client/0.4.5 (django/1.9.4; python/2.7.13)"
-        )
+        config = percy.Config(access_token='foo')
+        client = percy.Client(config=config)
+
+        self.percy_connection = connection.Connection(client)
 
     @requests_mock.Mocker()
     def test_get(self, mock):

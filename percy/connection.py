@@ -1,9 +1,10 @@
 import requests
+from percy.user_agent import UserAgent
 
 class Connection(object):
-    def __init__(self, config, user_agent):
-        self.config = config
-        self.user_agent = user_agent
+    def __init__(self, client):
+        self.config = client.config
+        self.user_agent = str(UserAgent(client))
 
     def _token_header(self):
         return "Token token={0}".format(self.config.access_token)
