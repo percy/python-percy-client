@@ -13,7 +13,7 @@ class Client(object):
     def __init__(self, connection=None, config=None, environment=None):
         self._environment = environment if environment else Environment()
         self._config = config if config else Config()
-        self._connection = connection if connection else Connection(self)
+        self._connection = connection if connection else Connection(self._config, self._environment)
 
     @property
     def connection(self):

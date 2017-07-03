@@ -3,8 +3,9 @@ import percy
 
 class UserAgent(object):
 
-    def __init__(self, client):
-      self.client = client
+    def __init__(self, config, environment):
+      self.config = config
+      self.environment = environment
 
     def __str__(self):
         client = ' '.join(filter(None, [
@@ -15,7 +16,7 @@ class UserAgent(object):
         environment = '; '.join(filter(None, [
           self._environment_info(),
           "python/%s" % self._python_version(),
-          self.client.environment.current_ci,
+          self.environment.current_ci,
         ]))
 
         return "%s (%s)" % (client, environment)
@@ -38,7 +39,7 @@ class UserAgent(object):
             return None
 
     def _api_version(self):
-        return re.search('\w+$', self.client.config.api_url).group(0)
+        return re.search('\w+$', self.config.api_url).group(0)
 
     def _environment_info(self):
         # we only detect django right now others could be added
