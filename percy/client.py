@@ -29,10 +29,6 @@ class Client(object):
     def environment(self):
         return self._environment
 
-    @property
-    def user_agent(self):
-        return self._user_agent
-
     def create_build(self, **kwargs):
         repo = kwargs.get('repo') or self.environment.repo
         branch = kwargs.get('branch') or self.environment.branch
