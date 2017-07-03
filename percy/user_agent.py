@@ -35,7 +35,7 @@ class UserAgent(object):
             import django
             return "django/%s" % django.get_version()
         except ImportError:
-            return 'unknown'
+            return None
 
     def _api_version(self):
         return re.search('\w+$', self.client.config.api_url).group(0)
