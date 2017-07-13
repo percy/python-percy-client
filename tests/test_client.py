@@ -44,6 +44,8 @@ class TestPercyClient(unittest.TestCase):
                     'branch': self.percy_client.environment.branch,
                     'commit-sha': self.percy_client.environment.commit_sha,
                     'pull-request-number': self.percy_client.environment.pull_request_number,
+                    'parallel-nonce': self.percy_client.environment.parallel_nonce,
+                    'parallel-total-shards': self.percy_client.environment.parallel_total_shards,
                 },
                'relationships': {
                     'resources': {
