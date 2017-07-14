@@ -49,6 +49,15 @@ SIMPLE_ERROR_RESPONSE_FIXTURE = {
     ]
 }
 
+SIMPLE_API_ERROR_RESPONSE_FIXTURE = {
+    'errors': [
+        {
+            'status': 'missing data',
+            'detail': 'Your forgot to include the data.'
+        }
+    ]
+}
+
 
 class TestRunner(unittest.TestCase):
     def test_init(self):
@@ -88,6 +97,18 @@ class TestRunner(unittest.TestCase):
         mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
 
         self.assertRaises(errors.AuthError, lambda: runner.initialize_build(repo='foo/bar'))
+
+    @requests_mock.Mocker()
+    def test_initialize_build_raises_error_when_api_error(self, mock):
+        root_dir = os.path.join(TEST_FILES_DIR, 'static')
+        loader = percy.ResourceLoader(root_dir=root_dir, base_url='/assets/')
+        config = percy.Config(access_token='foo')
+        runner = percy.Runner(config=config, loader=loader)
+
+        response_text = json.dumps(SIMPLE_API_ERROR_RESPONSE_FIXTURE)
+        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
+
+        self.assertRaises(errors.APIError, lambda: runner.initialize_build(repo='foo/bar'))
 
     @requests_mock.Mocker()
     def test_initialize_build_sends_missing_resources(self, mock):
