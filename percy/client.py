@@ -38,6 +38,11 @@ class Client(object):
         parallel_total_shards = kwargs.get('parallel_total_shards') \
             or self.environment.parallel_total_shards
 
+        # Only pass parallelism data if it all exists.
+        if not parallel_nonce or not parallel_total_shards:
+            parallel_nonce = None
+            parallel_total_shards = None
+
         data = {
             'data': {
                 'type': 'builds',
