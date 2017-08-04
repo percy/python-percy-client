@@ -14,7 +14,7 @@ test_requirements = [
 
 setup(
     name='percy',
-    version='1.0.2',
+    version='1.0.3',
     description='Python client library for visual regression testing with Percy (https://percy.io).',
     author='Perceptual Inc.',
     author_email='team@percy.io',
