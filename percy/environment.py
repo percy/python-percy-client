@@ -163,6 +163,10 @@ class JenkinsEnvironment(object):
     def commit_sha(self):
         return os.getenv('ghprbActualCommit') or os.getenv('GIT_COMMIT')
 
+    @property
+    def parallel_nonce(self):
+        return os.getenv('BUILD_NUMBER')
+
 
 class CircleEnvironment(object):
     @property
