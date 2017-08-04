@@ -157,7 +157,7 @@ class JenkinsEnvironment(object):
 
     @property
     def branch(self):
-        return os.getenv('ghprbTargetBranch')
+        return os.getenv('ghprbSourceBranch')
 
     @property
     def commit_sha(self):
