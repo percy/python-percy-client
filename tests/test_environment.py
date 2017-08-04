@@ -47,6 +47,7 @@ class BaseTestPercyEnvironment(object):
 
             # Unset Jenkins vars.
             'JENKINS_URL',
+            'BUILD_NUMBER',
             'ghprbPullId',
             'ghprbActualCommit',
             'ghprbTargetBranch',
@@ -228,7 +229,7 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
     def setup_method(self, method):
         super(TestJenkinsEnvironment, self).setup_method(self)
         os.environ['JENKINS_URL'] = 'http://localhost:8080/'
-        os.environ['ghprbPullId'] = '123'
+        os.environ['BUILD_NUMBER'] = 'jenkins-build-number'
         os.environ['ghprbTargetBranch'] = 'jenkins-target-branch'
         os.environ['ghprbActualCommit'] = 'jenkins-commit-sha'
         os.environ['GIT_COMMIT'] = 'jenkins-commit-sha-from-git-plugin'
@@ -236,6 +237,12 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
 
     def test_current_ci(self):
         assert self.environment.current_ci == 'jenkins'
+
+    def test_pull_request_number(self):
+        assert self.environment.pull_request_number == None
+
+        os.environ['ghprbPullId'] = '256'
+        assert self.environment.pull_request_number == '256'
 
     def test_branch(self):
         assert self.environment.branch == 'jenkins-target-branch'
@@ -249,7 +256,7 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
         assert self.environment.commit_sha == 'jenkins-commit-sha-from-git-plugin'
 
     def test_parallel_nonce(self):
-        assert self.environment.parallel_nonce is None
+        assert self.environment.parallel_nonce == 'jenkins-build-number'
 
     def test_parallel_total(self):
         assert self.environment.parallel_total_shards is None
