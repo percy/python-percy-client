@@ -49,7 +49,7 @@ class BaseTestPercyEnvironment(object):
             'JENKINS_URL',
             'ghprbPullId',
             'ghprbActualCommit',
-            'ghprbTargetBranch',
+            'ghprbSourceBranch',
             'GIT_COMMIT',
 
             # Unset Circle CI vars.
@@ -229,7 +229,7 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
         super(TestJenkinsEnvironment, self).setup_method(self)
         os.environ['JENKINS_URL'] = 'http://localhost:8080/'
         os.environ['ghprbPullId'] = '123'
-        os.environ['ghprbTargetBranch'] = 'jenkins-target-branch'
+        os.environ['ghprbSourceBranch'] = 'jenkins-source-branch'
         os.environ['ghprbActualCommit'] = 'jenkins-commit-sha'
         os.environ['GIT_COMMIT'] = 'jenkins-commit-sha-from-git-plugin'
         self.environment = percy.Environment()
@@ -238,7 +238,7 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
         assert self.environment.current_ci == 'jenkins'
 
     def test_branch(self):
-        assert self.environment.branch == 'jenkins-target-branch'
+        assert self.environment.branch == 'jenkins-source-branch'
 
     def test_repo(self):
         assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.

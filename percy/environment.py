@@ -157,7 +157,7 @@ class JenkinsEnvironment(object):
 
     @property
     def branch(self):
-        return os.getenv('ghprbTargetBranch')
+        return os.getenv('ghprbSourceBranch')
 
     @property
     def commit_sha(self):
@@ -302,7 +302,7 @@ class BuildkiteEnvironment(object):
     @property
     def parallel_nonce(self):
         return os.getenv('BUILDKITE_BUILD_ID')
-    
+
     @property
     def parallel_total_shards(self):
         if os.getenv('BUILDKITE_PARALLEL_JOB_COUNT', '').isdigit():
