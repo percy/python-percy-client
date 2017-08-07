@@ -275,7 +275,10 @@ class SemaphoreEnvironment(object):
 
     @property
     def parallel_nonce(self):
-        return os.getenv('SEMAPHORE_BUILD_NUMBER')
+        return '%s/%s' % (
+            os.getenv('SEMAPHORE_BRANCH_ID'),
+            os.getenv('SEMAPHORE_BUILD_NUMBER')
+        )
 
     @property
     def parallel_total_shards(self):

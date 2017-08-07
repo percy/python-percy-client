@@ -84,6 +84,7 @@ class BaseTestPercyEnvironment(object):
             'REVISION',
             'BRANCH_NAME',
             'SEMAPHORE_REPO_SLUG',
+            'SEMAPHORE_BRANCH_ID',
             'SEMAPHORE_BUILD_NUMBER',
             'SEMAPHORE_CURRENT_THREAD',
             'SEMAPHORE_THREAD_COUNT',
@@ -359,6 +360,7 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
         os.environ['BRANCH_NAME'] = 'semaphore-branch'
         os.environ['REVISION'] = 'semaphore-commit-sha'
         os.environ['SEMAPHORE_REPO_SLUG'] = 'semaphore/repo-name'
+        os.environ['SEMAPHORE_BRANCH_ID'] = 'semaphore-branch-id'
         os.environ['SEMAPHORE_BUILD_NUMBER'] = 'semaphore-build-number'
         os.environ['SEMAPHORE_THREAD_COUNT'] = '2'
         os.environ['PULL_REQUEST_NUMBER'] = '123'
@@ -377,7 +379,8 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
         assert self.environment.commit_sha == 'semaphore-commit-sha'
 
     def test_parallel_nonce(self):
-        assert self.environment.parallel_nonce == 'semaphore-build-number'
+        expected_nonce = 'semaphore-branch-id/semaphore-build-number'
+        assert self.environment.parallel_nonce == expected_nonce
 
     def test_parallel_total(self):
         assert self.environment.parallel_total_shards == 2
