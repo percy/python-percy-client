@@ -84,6 +84,7 @@ class BaseTestPercyEnvironment(object):
             'REVISION',
             'BRANCH_NAME',
             'SEMAPHORE_REPO_SLUG',
+            'SEMAPHORE_BRANCH_ID',
             'SEMAPHORE_BUILD_NUMBER',
             'SEMAPHORE_CURRENT_THREAD',
             'SEMAPHORE_THREAD_COUNT',
