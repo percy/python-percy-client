@@ -15,6 +15,11 @@ class Connection(object):
             'User-Agent': self.user_agent,
         }
         response = requests.get(path, headers=headers)
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            print(response.content)
+            raise e
         return response.json()
 
     def post(self, path, data, options={}):
@@ -24,6 +29,11 @@ class Connection(object):
             'User-Agent': self.user_agent,
         }
         response = requests.post(path, json=data, headers=headers)
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            print(response.content)
+            raise e
         # TODO(fotinakis): exception handling.
         # response.raise_for_status()
         return response.json()
