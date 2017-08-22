@@ -34,6 +34,4 @@ class Connection(object):
         except Exception as e:
             print(response.content)
             raise e
-        # TODO(fotinakis): exception handling.
-        # response.raise_for_status()
         return response.json()
