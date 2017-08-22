@@ -1,5 +1,6 @@
 import requests
 from percy.user_agent import UserAgent
+from percy import utils
 
 class Connection(object):
     def __init__(self, config, environment):
@@ -15,6 +16,12 @@ class Connection(object):
             'User-Agent': self.user_agent,
         }
         response = requests.get(path, headers=headers)
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            utils.print_error('Received a {} error requesting: {}'.format(response.status_code, path))
+            utils.print_error(response.content)
+            raise e
         return response.json()
 
     def post(self, path, data, options={}):
@@ -24,6 +31,10 @@ class Connection(object):
             'User-Agent': self.user_agent,
         }
         response = requests.post(path, json=data, headers=headers)
-        # TODO(fotinakis): exception handling.
-        # response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            utils.print_error('Received a {} error posting to: {}.'.format(response.status_code, path))
+            utils.print_error(response.content)
+            raise e
         return response.json()
