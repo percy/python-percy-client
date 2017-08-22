@@ -40,16 +40,6 @@ class Runner(object):
 
         self._current_build = self.client.create_build(resources=build_resources, **kwargs)
 
-        if 'errors' in self._current_build:
-            error = self._current_build['errors'][0]
-            if error['status'] == 'unauthorized':
-                raise errors.AuthError(error['detail'])
-            else:
-                error_string = 'An error occurred creating the build: ' + error['status']
-                if 'detail' in error:
-                    error_string += '\n' + error['detail']
-                raise errors.APIError(error_string)
-
         missing_resources = self._current_build['data']['relationships']['missing-resources']
         missing_resources = missing_resources.get('data', [])
 
