@@ -18,6 +18,8 @@ class Connection(object):
         try:
             response.raise_for_status()
         except Exception as e:
+            print('Received a {} error requesting: {}'
+                .format(response.status_code, path))
             print(response.content)
             raise e
         return response.json()
@@ -32,6 +34,8 @@ class Connection(object):
         try:
             response.raise_for_status()
         except Exception as e:
+            print('Received a {} error posting to: {}.'
+                .format(response.status_code, path))
             print(response.content)
             raise e
         return response.json()
