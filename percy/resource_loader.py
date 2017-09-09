@@ -1,8 +1,10 @@
 import os
 import percy
 try:
+    # Python 3's pathname2url
     from urllib.request import pathname2url
 except ImportError:
+    # Python 2's pathname2url
     from urllib import pathname2url
 
 from percy import utils
