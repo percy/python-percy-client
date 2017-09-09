@@ -45,7 +45,7 @@ class ResourceLoader(BaseResourceLoader):
                 with open(path, 'rb') as f:
                     content = f.read()
 
-                    path_for_url = urllib.pathname2url(path).replace(self.root_dir, '', 1)
+                    path_for_url = urllib.pathname2url(path.replace(self.root_dir, '', 1))
 
                     resource_url = "{0}{1}".format(self.base_url, path_for_url)
                     resource = percy.Resource(
