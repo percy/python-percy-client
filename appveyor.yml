@@ -73,7 +73,7 @@ install:
   - '%PYTHON_HOME%\Scripts\virtualenv --version'
   - '%PYTHON_HOME%\Scripts\easy_install --version'
   - '%PYTHON_HOME%\Scripts\pip --version'
-  - pip install -U tox
+  - '%PYTHON_HOME%\Scripts\pip install -U tox'
   - '%PYTHON_HOME%\Scripts\tox --version'
 
 test_script:
