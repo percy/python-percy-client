@@ -50,7 +50,7 @@ class ResourceLoader(BaseResourceLoader):
                     content = f.read()
 
                     path_for_url = pathname2url(path.replace(self.root_dir, '', 1))
-                    if path_for_url[0] == '/':
+                    if self.base_url[-1] == '/' and path_for_url[0] == '/':
                         path_for_url = path_for_url.replace('/', '' , 1)
 
 
