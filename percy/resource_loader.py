@@ -1,5 +1,12 @@
 import os
 import percy
+try:
+    # Python 3's pathname2url
+    from urllib.request import pathname2url
+except ImportError:
+    # Python 2's pathname2url
+    from urllib import pathname2url
+
 from percy import utils
 
 try:
@@ -43,7 +50,11 @@ class ResourceLoader(BaseResourceLoader):
                     continue
                 with open(path, 'rb') as f:
                     content = f.read()
-                    path_for_url = path.replace(self.root_dir, '', 1)
+
+                    path_for_url = pathname2url(path.replace(self.root_dir, '', 1))
+                    if self.base_url[-1] == '/' and path_for_url[0] == '/':
+                        path_for_url = path_for_url.replace('/', '' , 1)
+
 
                     resource_url = "{0}{1}".format(self.base_url, path_for_url)
                     resource = percy.Resource(
