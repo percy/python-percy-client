@@ -13,6 +13,7 @@ class Connection(object):
         self,
         retries=3,
         backoff_factor=0.3,
+        method_whitelist=['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'],
         status_forcelist=(500, 502, 503, 504, 520),
         session=None,
     ):
@@ -21,6 +22,7 @@ class Connection(object):
             total=retries,
             read=retries,
             connect=retries,
+            method_whitelist=method_whitelist,
             backoff_factor=backoff_factor,
             status_forcelist=status_forcelist,
         )
