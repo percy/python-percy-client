@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from percy.user_agent import UserAgent
 from percy import utils
 
@@ -6,9 +8,26 @@ class Connection(object):
     def __init__(self, config, environment):
         self.config = config
         self.user_agent = str(UserAgent(config, environment))
-        self.session = requests.Session()
-        self.session.mount('http://', requests.adapters.HTTPAdapter(max_retries=3))
-        self.session.mount('https://', requests.adapters.HTTPAdapter(max_retries=3))
+
+    def _requests_retry_session(
+        self,
+        retries=3,
+        backoff_factor=0.3,
+        status_forcelist=(500, 502, 503, 504, 520),
+        session=None,
+    ):
+        session = session or requests.Session()
+        retry = Retry(
+            total=retries,
+            read=retries,
+            connect=retries,
+            backoff_factor=backoff_factor,
+            status_forcelist=status_forcelist,
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+        return session
 
     def _token_header(self):
         return "Token token={0}".format(self.config.access_token)
@@ -18,7 +37,7 @@ class Connection(object):
             'Authorization': self._token_header(),
             'User-Agent': self.user_agent,
         }
-        response = self.session.get(path, headers=headers)
+        response = self._requests_retry_session().get(path, headers=headers)
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
@@ -33,7 +52,7 @@ class Connection(object):
             'Authorization': self._token_header(),
             'User-Agent': self.user_agent,
         }
-        response = self.session.post(path, json=data, headers=headers)
+        response = self._requests_retry_session().post(path, json=data, headers=headers)
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
