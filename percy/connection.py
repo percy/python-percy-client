@@ -22,6 +22,7 @@ class Connection(object):
             total=retries,
             read=retries,
             connect=retries,
+            status=retries,
             method_whitelist=method_whitelist,
             backoff_factor=backoff_factor,
             status_forcelist=status_forcelist,
