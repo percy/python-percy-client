@@ -23,6 +23,13 @@ class TestPercyConnection(unittest.TestCase):
         assert auth_header == 'Token token=foo'
 
     @requests_mock.Mocker()
+    def test_get_error_retried(self, mock):
+        mock.get('http://api.percy.io', [{'text':'{"error":"foo"}', 'status_code':502},
+            {'text':'{"data":"GET Percy"}', 'status_code':200}])
+        data = self.percy_connection.get('http://api.percy.io')
+        self.assertEqual(data['data'], 'GET Percy')
+
+    @requests_mock.Mocker()
     def test_get_error(self, mock):
         mock.get('http://api.percy.io', text='{"error":"foo"}', status_code=401)
         self.assertRaises(requests.exceptions.HTTPError, lambda: self.percy_connection.get(
