@@ -14,7 +14,7 @@ class Connection(object):
         retries=3,
         backoff_factor=0.3,
         method_whitelist=['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'],
-        status_forcelist=(500, 502, 503, 504, 520),
+        status_forcelist=(500, 502, 503, 504, 520, 524),
         session=None,
     ):
         session = session or requests.Session()
