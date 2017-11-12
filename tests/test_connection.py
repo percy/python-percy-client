@@ -22,6 +22,15 @@ class TestPercyConnection(unittest.TestCase):
         auth_header = mock.request_history[0].headers['Authorization']
         assert auth_header == 'Token token=foo'
 
+    # TODO: This test fails, because requests_mock replaces the adapter where the
+    # retry configuration is injected. Can we find a different way to supply mock responses?
+    # @requests_mock.Mocker()
+    # def test_get_error_is_retried(self, mock):
+    #     mock.get('http://api.percy.io', [{'text':'{"error":"foo"}', 'status_code':503},
+    #         {'text':'{"data":"GET Percy"}', 'status_code':200}])
+    #     data = self.percy_connection.get('http://api.percy.io')
+    #     self.assertEqual(data['data'], 'GET Percy')
+
     @requests_mock.Mocker()
     def test_get_error(self, mock):
         mock.get('http://api.percy.io', text='{"error":"foo"}', status_code=401)
