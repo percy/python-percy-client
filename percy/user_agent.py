@@ -39,7 +39,7 @@ class UserAgent(object):
             return None
 
     def _api_version(self):
-        return re.search('\w+$', self.config.api_url).group(0)
+        return re.search(r'\w+$', self.config.api_url).group(0)
 
     def _environment_info(self):
         # we only detect django right now others could be added
