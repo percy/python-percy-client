@@ -66,6 +66,7 @@ class TestRunner(unittest.TestCase):
 
         # Whitebox check that the current build data is set correctly.
         assert runner._current_build == SIMPLE_BUILD_FIXTURE
+        assert runner.build_id == SIMPLE_BUILD_FIXTURE['data']['id']
 
     @requests_mock.Mocker()
     def test_initialize_build_sends_missing_resources(self, mock):
