@@ -60,6 +60,14 @@ class Runner(object):
                     content = resource.content
                 self.client.upload_resource(self._current_build['data']['id'], content)
 
+    @property
+    def build_id(self):
+      if not self._is_enabled:
+        return
+      if not self._current_build:
+        raise errors.UninitializedBuildError('Cannot get current build id before build is initialized')
+      return self._current_build['data']['id']
+
     def snapshot(self, **kwargs):
         # Silently pass if Percy is disabled.
         if not self._is_enabled:
