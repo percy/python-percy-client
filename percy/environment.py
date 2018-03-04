@@ -51,7 +51,7 @@ class Environment(object):
         if raw_branch_output:
             return raw_branch_output
         # Fourth, fallback to NONE.
-        utils.print_error('[percy] Warning: unknown git repo, BRANCH not detected.')
+        utils.print_error('[percy] Warning: unknown git repo, branch not detected.')
         return None
 
     def _raw_branch_output(self):
