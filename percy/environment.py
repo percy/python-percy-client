@@ -55,8 +55,12 @@ class Environment(object):
         return None
 
     def _raw_branch_output(self):
-        process = subprocess.Popen(
-            'git rev-parse --abbrev-ref HEAD 2> /dev/null', stdout=subprocess.PIPE, shell=True)
+        if os.name == 'nt':
+            process = subprocess.Popen(
+                'git rev-parse --abbrev-ref HEAD 2> NUL', stdout=subprocess.PIPE, shell=True)
+        else:
+            process = subprocess.Popen(
+                'git rev-parse --abbrev-ref HEAD 2> /dev/null', stdout=subprocess.PIPE, shell=True)
         return process.stdout.read().strip().decode('utf-8')
 
     def _get_origin_url(self):
