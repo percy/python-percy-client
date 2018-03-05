@@ -122,9 +122,9 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         # Default calls _raw_branch_output and call git underneath, so allow any non-empty string.
         assert len(self.environment.branch) > 0
 
-        # If git command fails, falls back to "master" and prints warning.
+        # If git command fails, falls back to None and prints warning.
         monkeypatch.setattr(self.environment, '_raw_branch_output', lambda: '')
-        assert self.environment.branch == 'master'
+        assert self.environment.branch == None
 
         # Can be overridden with PERCY_BRANCH.
         os.environ['PERCY_BRANCH'] = 'foo'

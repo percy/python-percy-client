@@ -50,13 +50,17 @@ class Environment(object):
         raw_branch_output = self._raw_branch_output()
         if raw_branch_output:
             return raw_branch_output
-        # Fourth, fallback to 'master'.
-        utils.print_error('[percy] Warning: unknown git repo, setting PERCY_BRANCH to "master".')
-        return 'master'
+        # Fourth, fallback to NONE.
+        utils.print_error('[percy] Warning: unknown git repo, branch not detected.')
+        return None
 
     def _raw_branch_output(self):
-        process = subprocess.Popen(
-            'git rev-parse --abbrev-ref HEAD 2> /dev/null', stdout=subprocess.PIPE, shell=True)
+        if os.name == 'nt':
+            process = subprocess.Popen(
+                'git rev-parse --abbrev-ref HEAD 2> NUL', stdout=subprocess.PIPE, shell=True)
+        else:
+            process = subprocess.Popen(
+                'git rev-parse --abbrev-ref HEAD 2> /dev/null', stdout=subprocess.PIPE, shell=True)
         return process.stdout.read().strip().decode('utf-8')
 
     def _get_origin_url(self):
