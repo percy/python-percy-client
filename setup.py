@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 requirements = [
-    'requests'
+    'requests>=2.14.0'
 ]
 
 test_requirements = [
