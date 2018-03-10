@@ -117,6 +117,12 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_PULL_REQUEST'] = '1234'
         assert self.environment.pull_request_number == '1234'
 
+    def test_commit(self):
+        # print('this commit ' + self.environment._raw_commit_output('HEAD'))
+        # assert self.environment._raw_commit_output('HEAD') == 'a'
+        assert self.environment.commit == 'a'
+
+
     @pytest.fixture(autouse=True)
     def test_branch(self, monkeypatch):
         # Default calls _raw_branch_output and call git underneath, so allow any non-empty string.
