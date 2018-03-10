@@ -104,7 +104,6 @@ class Environment(object):
         def parse(regex):
             if not output:
                 return None
-            # print('output:' + output)
             match = regex.search(output)
             if match:
                 return match.group(1)
