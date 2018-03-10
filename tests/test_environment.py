@@ -129,14 +129,14 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         # Call commit using the real _raw_commit_data, which calls git underneath, so allow full
         # commit object with attributes containing any string. (Real data changes with each commit)
         commit_data = self.environment.commit_data
-        assert isinstance(commit_data['branch'], basestring)
-        assert isinstance(commit_data['sha'], basestring)
-        assert isinstance(commit_data['message'], basestring)
-        assert isinstance(commit_data['committed_at'], basestring)
-        assert isinstance(commit_data['author_name'], basestring)
-        assert isinstance(commit_data['author_email'], basestring)
-        assert isinstance(commit_data['committer_name'], basestring)
-        assert isinstance(commit_data['committer_email'], basestring)
+        assert isinstance(commit_data['branch'], str)
+        assert isinstance(commit_data['sha'], str)
+        assert isinstance(commit_data['message'], str)
+        assert isinstance(commit_data['committed_at'], str)
+        assert isinstance(commit_data['author_name'], str)
+        assert isinstance(commit_data['author_email'], str)
+        assert isinstance(commit_data['committer_name'], str)
+        assert isinstance(commit_data['committer_email'], str)
 
         # Call commit using faking a _raw_commit_data failure.
         # If git command fails, returns only the branch.
