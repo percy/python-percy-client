@@ -65,6 +65,12 @@ class Environment(object):
         utils.print_error('[percy] Warning: unknown git repo, branch not detected.')
         return None
 
+    @property
+    def target_branch(self):
+        if os.getenv('PERCY_TARGET_BRANCH'):
+            return os.getenv('PERCY_TARGET_BRANCH')
+        return None
+
     def _raw_git_output(self, args):
         process = subprocess.Popen(
             'git ' + args,
@@ -79,7 +85,7 @@ class Environment(object):
         return self._raw_git_output(args)
 
     @property
-    def commit(self):
+    def commit_data(self):
         output = ''
         if self.commit_sha:
           output = self._raw_commit_output(self.commit_sha)
@@ -110,14 +116,14 @@ class Environment(object):
 
             # Optional attributes:
             'message': parse(re.compile("COMMIT_MESSAGE:(.*)", flags=re.MULTILINE)),
-            'committedAt': parse(re.compile("COMMITTED_DATE:(.*)")),
+            'committed_at': parse(re.compile("COMMITTED_DATE:(.*)")),
 
             # These GIT_ environment vars are from the Jenkins Git Plugin, but could be
             # used generically. This behavior may change in the future.
-            'authorName': parse(re.compile("AUTHOR_NAME:(.*)")) or os.getenv('GIT_AUTHOR_NAME'),
-            'authorEmail': parse(re.compile("AUTHOR_EMAIL:(.*)")) or os.getenv('GIT_AUTHOR_EMAIL'),
-            'committerName': parse(re.compile("COMMITTER_NAME:(.*)")) or os.getenv('GIT_COMMITTER_NAME'),
-            'committerEmail': parse(re.compile("COMMITTER_EMAIL:(.*)")) or os.getenv('GIT_COMMITTER_EMAIL'),
+            'author_name': parse(re.compile("AUTHOR_NAME:(.*)")) or os.getenv('GIT_AUTHOR_NAME'),
+            'author_email': parse(re.compile("AUTHOR_EMAIL:(.*)")) or os.getenv('GIT_AUTHOR_EMAIL'),
+            'committer_name': parse(re.compile("COMMITTER_NAME:(.*)")) or os.getenv('GIT_COMMITTER_NAME'),
+            'committer_email': parse(re.compile("COMMITTER_EMAIL:(.*)")) or os.getenv('GIT_COMMITTER_EMAIL'),
         }
 
 

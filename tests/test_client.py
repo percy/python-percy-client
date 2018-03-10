@@ -37,12 +37,20 @@ class TestPercyClient(unittest.TestCase):
         ]
 
         build_data = self.percy_client.create_build(repo='foo/bar', resources=resources)
+        commit_data = self.percy_client.environment.commit_data
         assert mock.request_history[0].json() == {
             'data': {
                 'type': 'builds',
                 'attributes': {
                     'branch': self.percy_client.environment.branch,
-                    'commit-sha': self.percy_client.environment.commit_sha,
+                    'target-branch': self.percy_client.environment.target_branch,
+                    'commit-sha': commit_data['sha'],
+                    'commit-committed-at': commit_data['committed_at'],
+                    'commit-author-name': commit_data['author_name'],
+                    'commit-author-email': commit_data['author_email'],
+                    'commit-committer-name': commit_data['committer_name'],
+                    'commit-committer-email': commit_data['committer_email'],
+                    'commit-message': commit_data['message'],
                     'pull-request-number': self.percy_client.environment.pull_request_number,
                     'parallel-nonce': self.percy_client.environment.parallel_nonce,
                     'parallel-total-shards': self.percy_client.environment.parallel_total_shards,

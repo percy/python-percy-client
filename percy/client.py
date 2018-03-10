@@ -30,7 +30,6 @@ class Client(object):
     def create_build(self, **kwargs):
         repo = kwargs.get('repo') or self.environment.repo
         branch = kwargs.get('branch') or self.environment.branch
-        commit_sha = kwargs.get('commit_sha') or self.environment.commit_sha
         pull_request_number = kwargs.get('pull_request_number') \
             or self.environment.pull_request_number
         resources = kwargs.get('resources')
@@ -43,12 +42,21 @@ class Client(object):
             parallel_nonce = None
             parallel_total_shards = None
 
+        commit_data = kwargs.get('commit_data') or self.environment.commit_data;
+
         data = {
             'data': {
                 'type': 'builds',
                 'attributes': {
                     'branch': branch,
-                    'commit-sha': commit_sha,
+                    'target-branch': self.environment.target_branch,
+                    'commit-sha': commit_data['sha'],
+                    'commit-committed-at': commit_data['committed_at'],
+                    'commit-author-name': commit_data['author_name'],
+                    'commit-author-email': commit_data['author_email'],
+                    'commit-committer-name': commit_data['committer_name'],
+                    'commit-committer-email': commit_data['committer_email'],
+                    'commit-message': commit_data['message'],
                     'pull-request-number': pull_request_number,
                     'parallel-nonce': parallel_nonce,
                     'parallel-total-shards': parallel_total_shards,

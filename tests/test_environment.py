@@ -120,7 +120,7 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
     def test_commit(self):
         # print('this commit ' + self.environment._raw_commit_output('HEAD'))
         # assert self.environment._raw_commit_output('HEAD') == 'a'
-        assert self.environment.commit == 'a'
+        assert self.environment.commit_data == 'a'
 
 
     @pytest.fixture(autouse=True)
