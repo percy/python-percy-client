@@ -80,8 +80,12 @@ class Environment(object):
         )
         return process.stdout.read().strip().decode('utf-8')
 
-    def _raw_commit_output(self, commitSha):
-        args = 'show ' + commitSha + ' --quiet --format="' + GIT_COMMIT_FORMAT + '"';
+    def _raw_commit_output(self, commit_sha):
+        # Make sure commit_sha is only alphanumeric characters to prevent command injection.
+        if not commit_sha or len(commit_sha) > 100 or not commit_sha.isalnum():
+            return ''
+
+        args = 'show ' + commit_sha + ' --quiet --format="' + GIT_COMMIT_FORMAT + '"';
         return self._raw_git_output(args)
 
     @property
@@ -100,7 +104,7 @@ class Environment(object):
         def parse(regex):
             if not output:
                 return None
-            print('output:' + output)
+            # print('output:' + output)
             match = regex.search(output)
             if match:
                 return match.group(1)
