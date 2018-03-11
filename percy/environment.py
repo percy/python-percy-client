@@ -71,23 +71,6 @@ class Environment(object):
             return os.getenv('PERCY_TARGET_BRANCH')
         return None
 
-    def _raw_git_output(self, args):
-        process = subprocess.Popen(
-            'git ' + args,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=True
-        )
-        return process.stdout.read().strip().decode('utf-8')
-
-    def _raw_commit_output(self, commit_sha):
-        # Make sure commit_sha is only alphanumeric characters to prevent command injection.
-        if not commit_sha or len(commit_sha) > 100 or not commit_sha.isalnum():
-            return ''
-
-        args = 'show ' + commit_sha + ' --quiet --format="' + GIT_COMMIT_FORMAT + '"';
-        return self._raw_git_output(args)
-
     @property
     def commit_data(self):
         output = ''
@@ -110,7 +93,6 @@ class Environment(object):
             else:
                 return None
 
-
         return {
             # The only required attribute:
             'branch': self.branch,
@@ -128,15 +110,6 @@ class Environment(object):
             'committer_name': parse(re.compile("COMMITTER_NAME:(.*)")) or os.getenv('GIT_COMMITTER_NAME'),
             'committer_email': parse(re.compile("COMMITTER_EMAIL:(.*)")) or os.getenv('GIT_COMMITTER_EMAIL'),
         }
-
-
-    def _raw_branch_output(self):
-        return self._raw_git_output('rev-parse --abbrev-ref HEAD')
-
-    def _get_origin_url(self):
-        process = subprocess.Popen(
-            'git config --get remote.origin.url', stdout=subprocess.PIPE, shell=True)
-        return process.stdout.read().strip().decode('utf-8')
 
     @property
     def commit_sha(self):
@@ -180,6 +153,32 @@ class Environment(object):
             return int(os.getenv('PERCY_PARALLEL_TOTAL'))
         if self._real_env and hasattr(self._real_env, 'parallel_total_shards'):
             return self._real_env.parallel_total_shards
+
+    def _raw_git_output(self, args):
+        process = subprocess.Popen(
+            'git ' + args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True
+        )
+        return process.stdout.read().strip().decode('utf-8')
+
+    def _raw_commit_output(self, commit_sha):
+        # Make sure commit_sha is only alphanumeric characters to prevent command injection.
+        if not commit_sha or len(commit_sha) > 100 or not commit_sha.isalnum():
+            return ''
+
+        args = 'show ' + commit_sha + ' --quiet --format="' + GIT_COMMIT_FORMAT + '"';
+        return self._raw_git_output(args)
+
+    def _raw_branch_output(self):
+        return self._raw_git_output('rev-parse --abbrev-ref HEAD')
+
+    def _get_origin_url(self):
+        process = subprocess.Popen(
+            'git config --get remote.origin.url', stdout=subprocess.PIPE, shell=True)
+        return process.stdout.read().strip().decode('utf-8')
+
 
 
 class TravisEnvironment(object):
