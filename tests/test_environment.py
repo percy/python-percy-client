@@ -1,7 +1,7 @@
 import os
 import percy
 import pytest
-
+import sys
 
 class BaseTestPercyEnvironment(object):
     def setup_method(self, method):
@@ -28,6 +28,7 @@ class BaseTestPercyEnvironment(object):
             # Unset Percy vars.
             'PERCY_COMMIT',
             'PERCY_BRANCH',
+            'PERCY_TARGET_BRANCH',
             'PERCY_PULL_REQUEST',
             'PERCY_REPO_SLUG',
             'PERCY_PROJECT',
@@ -111,11 +112,69 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
     def test_current_ci(self):
         assert self.environment.current_ci == None
 
+    def test_target_branch(self):
+        assert self.environment.target_branch == None
+        # Can be overridden with PERCY_TARGET_BRANCH.
+        os.environ['PERCY_TARGET_BRANCH'] = 'staging'
+        assert self.environment.target_branch == 'staging'
+
     def test_pull_request_number(self):
         assert self.environment.pull_request_number == None
         # Can be overridden with PERCY_PULL_REQUEST.
         os.environ['PERCY_PULL_REQUEST'] = '1234'
         assert self.environment.pull_request_number == '1234'
+
+    def test_commit_live(self, monkeypatch):
+        def isstr(s):
+            if sys.version_info >= (3,0):
+                return isinstance(s, str)
+            else:
+                return isinstance(s, basestring)
+
+        # Call commit using the real _raw_commit_data, which calls git underneath, so allow full
+        # commit object with attributes containing any string. (Real data changes with each commit)
+        commit_data = self.environment.commit_data
+        assert isstr(commit_data['branch'])
+        assert isstr(commit_data['sha'])
+        assert isstr(commit_data['message'])
+        assert isstr(commit_data['committed_at'])
+        assert isstr(commit_data['author_name'])
+        assert isstr(commit_data['author_email'])
+        assert isstr(commit_data['committer_name'])
+        assert isstr(commit_data['committer_email'])
+
+    @pytest.fixture(autouse=True)
+    def test_commit_with_failed_raw_commit(self, monkeypatch):
+        # Call commit using faking a _raw_commit_data failure.
+        # If git command fails, returns only the branch.
+        monkeypatch.setattr(self.environment, '_raw_commit_output', lambda x: '')
+        assert self.environment.commit_data == {'branch': 'foo'}
+
+    @pytest.fixture(autouse=True)
+    def test_commit_with_mocked_raw_commit(self, monkeypatch):
+        # Call commit with _raw_commit_data returning mock data, so we can confirm it
+        # gets formatted correctly
+        def fake_raw_commit(commit_sha):
+            return """COMMIT_SHA:2fcd1b107aa25e62a06de7782d0c17544c669d139
+                      AUTHOR_NAME:Tim Haines
+                      AUTHOR_EMAIL:timhaines@example.com
+                      COMMITTER_NAME:Other Tim Haines
+                      COMMITTER_EMAIL:othertimhaines@example.com
+                      COMMITTED_DATE:2018-03-10 14:41:02 -0800
+                      COMMIT_MESSAGE:This is a great commit"""
+
+        monkeypatch.setattr(self.environment, '_raw_commit_output', fake_raw_commit)
+        assert self.environment.commit_data == {
+            'branch': 'foo',
+            'sha': '2fcd1b107aa25e62a06de7782d0c17544c669d139',
+            'committed_at': '2018-03-10 14:41:02 -0800',
+            'message': 'This is a great commit',
+            'author_name': 'Tim Haines',
+            'author_email': 'timhaines@example.com',
+            'committer_name': 'Other Tim Haines',
+            'committer_email': 'othertimhaines@example.com'
+        }
+
 
     @pytest.fixture(autouse=True)
     def test_branch(self, monkeypatch):

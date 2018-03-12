@@ -7,6 +7,17 @@ from percy import utils
 
 __all__ = ['Environment']
 
+GIT_COMMIT_FORMAT = '%n'.join([
+  'COMMIT_SHA:%H',
+  'AUTHOR_NAME:%an',
+  'AUTHOR_EMAIL:%ae',
+  'COMMITTER_NAME:%an',
+  'COMMITTER_EMAIL:%ae',
+  'COMMITTED_DATE:%ai',
+  # Note: order is important, this must come last because the regex is a multiline match.
+  'COMMIT_MESSAGE:%B',
+]); # git show format uses %n for newlines.
+
 
 class Environment(object):
     def __init__(self):
@@ -54,19 +65,51 @@ class Environment(object):
         utils.print_error('[percy] Warning: unknown git repo, branch not detected.')
         return None
 
-    def _raw_branch_output(self):
-        if os.name == 'nt':
-            process = subprocess.Popen(
-                'git rev-parse --abbrev-ref HEAD 2> NUL', stdout=subprocess.PIPE, shell=True)
-        else:
-            process = subprocess.Popen(
-                'git rev-parse --abbrev-ref HEAD 2> /dev/null', stdout=subprocess.PIPE, shell=True)
-        return process.stdout.read().strip().decode('utf-8')
+    @property
+    def target_branch(self):
+        if os.getenv('PERCY_TARGET_BRANCH'):
+            return os.getenv('PERCY_TARGET_BRANCH')
+        return None
 
-    def _get_origin_url(self):
-        process = subprocess.Popen(
-            'git config --get remote.origin.url', stdout=subprocess.PIPE, shell=True)
-        return process.stdout.read().strip().decode('utf-8')
+    @property
+    def commit_data(self):
+        output = ''
+        if self.commit_sha:
+          output = self._raw_commit_output(self.commit_sha)
+        if not output:
+          output = self._raw_commit_output('HEAD')
+
+        # If _raw_commit_output can't be read, return the branch only.
+        if not output:
+          return { 'branch': self.branch }
+
+        # If not running in a git repo, allow undefined for certain commit attributes.
+        def parse(regex):
+            if not output:
+                return None
+            match = regex.search(output)
+            if match:
+                return match.group(1)
+            else:
+                return None
+
+        return {
+            # The only required attribute:
+            'branch': self.branch,
+            # An optional but important attribute:
+            'sha': self.commit_sha or parse(re.compile("COMMIT_SHA:(.*)")),
+
+            # Optional attributes:
+            'message': parse(re.compile("COMMIT_MESSAGE:(.*)", flags=re.MULTILINE)),
+            'committed_at': parse(re.compile("COMMITTED_DATE:(.*)")),
+
+            # These GIT_ environment vars are from the Jenkins Git Plugin, but could be
+            # used generically. This behavior may change in the future.
+            'author_name': parse(re.compile("AUTHOR_NAME:(.*)")) or os.getenv('GIT_AUTHOR_NAME'),
+            'author_email': parse(re.compile("AUTHOR_EMAIL:(.*)")) or os.getenv('GIT_AUTHOR_EMAIL'),
+            'committer_name': parse(re.compile("COMMITTER_NAME:(.*)")) or os.getenv('GIT_COMMITTER_NAME'),
+            'committer_email': parse(re.compile("COMMITTER_EMAIL:(.*)")) or os.getenv('GIT_COMMITTER_EMAIL'),
+        }
 
     @property
     def commit_sha(self):
@@ -110,6 +153,32 @@ class Environment(object):
             return int(os.getenv('PERCY_PARALLEL_TOTAL'))
         if self._real_env and hasattr(self._real_env, 'parallel_total_shards'):
             return self._real_env.parallel_total_shards
+
+    def _raw_git_output(self, args):
+        process = subprocess.Popen(
+            ['git'] + args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False
+        )
+        return process.stdout.read().strip().decode('utf-8')
+
+    def _raw_commit_output(self, commit_sha):
+        # Make sure commit_sha is only alphanumeric characters to prevent command injection.
+        if not commit_sha or len(commit_sha) > 100 or not commit_sha.isalnum():
+            return ''
+
+        args = ['show', commit_sha, '--quiet', '--format="' + GIT_COMMIT_FORMAT + '"'];
+        return self._raw_git_output(args)
+
+    def _raw_branch_output(self):
+        return self._raw_git_output(['rev-parse', '--abbrev-ref', 'HEAD'])
+
+    def _get_origin_url(self):
+        process = subprocess.Popen(
+            'git config --get remote.origin.url', stdout=subprocess.PIPE, shell=True)
+        return process.stdout.read().strip().decode('utf-8')
+
 
 
 class TravisEnvironment(object):
