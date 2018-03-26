@@ -148,7 +148,14 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         # Call commit using faking a _raw_commit_data failure.
         # If git command fails, returns only the branch.
         monkeypatch.setattr(self.environment, '_raw_commit_output', lambda x: '')
-        assert self.environment.commit_data == {'branch': 'foo'}
+        assert self.environment.commit_data == {
+            'branch': 'foo',
+            'author_email': None,
+            'author_name': None,
+            'committer_email': None,
+            'committer_name': None,
+            'sha': None
+        }
 
     @pytest.fixture(autouse=True)
     def test_commit_with_mocked_raw_commit(self, monkeypatch):
