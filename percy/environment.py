@@ -73,20 +73,22 @@ class Environment(object):
 
     @property
     def commit_data(self):
-        # Try getting commit data from git
-        git_data_from_git = self._raw_commit_output(self.commit_sha or 'HEAD')
+
+        # Try getting data from git
+        raw_git_output = self._git_commit_output()
 
         # If not running in a git repo, allow undefined for certain commit attributes.
         def parse(regex):
-            if not git_data_from_git:
+            if not raw_git_output:
                 return None
-            match = regex.search(git_data_from_git)
+            match = regex.search(raw_git_output)
             if match:
                 return match.group(1)
             else:
                 return None
 
-        if git_data_from_git:
+        # This means git exists on the system, so use the information from the specified commit.
+        if raw_git_output:
             return {
                 # The only required attribute:
                 'branch': self.branch,
@@ -103,7 +105,7 @@ class Environment(object):
                 'committer_email': parse(re.compile("COMMITTER_EMAIL:(.*)")),
             }
 
-        # If we don't have git, use environment variables.
+        # If we get here, we don't have git on the local system, so use environment variables.
         else:
             return {
                 # The only required attribute:
@@ -179,6 +181,18 @@ class Environment(object):
 
         args = ['show', commit_sha, '--quiet', '--format="' + GIT_COMMIT_FORMAT + '"'];
         return self._raw_git_output(args)
+
+    def _git_commit_output(self):
+        raw_git_output = ''
+        # Try getting commit data from commit_sha set by environment variables
+        if self.commit_sha:
+          raw_git_output = self._raw_commit_output(self.commit_sha)
+
+        # If there's no raw_git_output, it probably means there's not a sha, so try `HEAD`
+        if not raw_git_output:
+          raw_git_output = self._raw_commit_output('HEAD')
+
+        return raw_git_output
 
     def _raw_branch_output(self):
         return self._raw_git_output(['rev-parse', '--abbrev-ref', 'HEAD'])
