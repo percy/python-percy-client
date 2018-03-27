@@ -105,7 +105,7 @@ class Environment(object):
 
         # If we don't have git, use environment variables.
         else:
-            git_data_from_env = {
+            return {
                 # The only required attribute:
                 'branch': self.branch,
                 # An optional but important attribute:
@@ -118,7 +118,6 @@ class Environment(object):
                 'committer_name': os.getenv('GIT_COMMITTER_NAME'),
                 'committer_email': os.getenv('GIT_COMMITTER_EMAIL'),
             }
-            return git_data_from_env
 
 
     @property
