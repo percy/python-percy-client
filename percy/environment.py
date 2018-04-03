@@ -75,6 +75,7 @@ class Environment(object):
     def commit_data(self):
 
         # Try getting data from git
+        # If this has a result, it means git is present in the system.
         raw_git_output = self._git_commit_output()
 
         # If not running in a git repo, allow undefined for certain commit attributes.
@@ -87,40 +88,23 @@ class Environment(object):
             else:
                 return None
 
-        # This means git exists on the system, so use the information from the specified commit.
-        if raw_git_output:
-            return {
-                # The only required attribute:
-                'branch': self.branch,
-                # An optional but important attribute:
-                'sha': self.commit_sha or parse(re.compile("COMMIT_SHA:(.*)")),
+        return {
+            # The only required attribute:
+            'branch': self.branch,
+            # An optional but important attribute:
+            'sha': self.commit_sha or parse(re.compile("COMMIT_SHA:(.*)")),
 
-                # Optional attributes:
-                # If we have the git information, read from those rather than env vars
-                'message': parse(re.compile("COMMIT_MESSAGE:(.*)", flags=re.MULTILINE)),
-                'committed_at': parse(re.compile("COMMITTED_DATE:(.*)")),
-                'author_name': parse(re.compile("AUTHOR_NAME:(.*)")),
-                'author_email': parse(re.compile("AUTHOR_EMAIL:(.*)")),
-                'committer_name': parse(re.compile("COMMITTER_NAME:(.*)")),
-                'committer_email': parse(re.compile("COMMITTER_EMAIL:(.*)")),
-            }
-
-        # If we get here, we don't have git on the local system, so use environment variables.
-        else:
-            return {
-                # The only required attribute:
-                'branch': self.branch,
-                # An optional but important attribute:
-                'sha': self.commit_sha,
-
-                # These GIT_ environment vars are from the Jenkins Git Plugin, but could be
-                # used generically. This behavior may change in the future.
-                'author_name': os.getenv('GIT_AUTHOR_NAME'),
-                'author_email': os.getenv('GIT_AUTHOR_EMAIL'),
-                'committer_name': os.getenv('GIT_COMMITTER_NAME'),
-                'committer_email': os.getenv('GIT_COMMITTER_EMAIL'),
-            }
-
+            # Optional attributes:
+            # If we have the git information, read from those rather than env vars.
+            # The GIT_ environment vars are from the Jenkins Git Plugin, but could be
+            # used generically. This behavior may change in the future.
+            'message': parse(re.compile("COMMIT_MESSAGE:(.*)", flags=re.MULTILINE)),
+            'committed_at': parse(re.compile("COMMITTED_DATE:(.*)")),
+            'author_name': parse(re.compile("AUTHOR_NAME:(.*)")) or os.getenv('GIT_AUTHOR_NAME'),
+            'author_email': parse(re.compile("AUTHOR_EMAIL:(.*)")) or os.getenv('GIT_AUTHOR_EMAIL'),
+            'committer_name': parse(re.compile("COMMITTER_NAME:(.*)")) or os.getenv('GIT_COMMITTER_NAME'),
+            'committer_email': parse(re.compile("COMMITTER_EMAIL:(.*)")) or os.getenv('GIT_COMMITTER_EMAIL'),
+        }
 
     @property
     def commit_sha(self):
