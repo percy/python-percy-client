@@ -77,9 +77,9 @@ bumpversion_major: clean
 release: clean
 	git push
 	git push --tags
-	python setup.py register
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+	python setup.py sdist
+	python setup.py bdist_wheel
+	twine upload dist/*
 
 dist: clean
 	python setup.py sdist

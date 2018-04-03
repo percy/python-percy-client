@@ -7,5 +7,6 @@ flake8==2.4.1
 pytest==2.8.3
 requests_mock==1.0.0
 tox==2.1.1
+twine==1.11.0
 watchdog==0.8.3
 wheel==0.23.0
