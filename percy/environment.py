@@ -73,21 +73,16 @@ class Environment(object):
 
     @property
     def commit_data(self):
-        output = ''
-        if self.commit_sha:
-          output = self._raw_commit_output(self.commit_sha)
-        if not output:
-          output = self._raw_commit_output('HEAD')
 
-        # If _raw_commit_output can't be read, return the branch only.
-        if not output:
-          return { 'branch': self.branch }
+        # Try getting data from git
+        # If this has a result, it means git is present in the system.
+        raw_git_output = self._git_commit_output()
 
         # If not running in a git repo, allow undefined for certain commit attributes.
         def parse(regex):
-            if not output:
+            if not raw_git_output:
                 return None
-            match = regex.search(output)
+            match = regex.search(raw_git_output)
             if match:
                 return match.group(1)
             else:
@@ -100,11 +95,11 @@ class Environment(object):
             'sha': self.commit_sha or parse(re.compile("COMMIT_SHA:(.*)")),
 
             # Optional attributes:
+            # If we have the git information, read from those rather than env vars.
+            # The GIT_ environment vars are from the Jenkins Git Plugin, but could be
+            # used generically. This behavior may change in the future.
             'message': parse(re.compile("COMMIT_MESSAGE:(.*)", flags=re.MULTILINE)),
             'committed_at': parse(re.compile("COMMITTED_DATE:(.*)")),
-
-            # These GIT_ environment vars are from the Jenkins Git Plugin, but could be
-            # used generically. This behavior may change in the future.
             'author_name': parse(re.compile("AUTHOR_NAME:(.*)")) or os.getenv('GIT_AUTHOR_NAME'),
             'author_email': parse(re.compile("AUTHOR_EMAIL:(.*)")) or os.getenv('GIT_AUTHOR_EMAIL'),
             'committer_name': parse(re.compile("COMMITTER_NAME:(.*)")) or os.getenv('GIT_COMMITTER_NAME'),
@@ -170,6 +165,18 @@ class Environment(object):
 
         args = ['show', commit_sha, '--quiet', '--format="' + GIT_COMMIT_FORMAT + '"'];
         return self._raw_git_output(args)
+
+    def _git_commit_output(self):
+        raw_git_output = ''
+        # Try getting commit data from commit_sha set by environment variables
+        if self.commit_sha:
+          raw_git_output = self._raw_commit_output(self.commit_sha)
+
+        # If there's no raw_git_output, it probably means there's not a sha, so try `HEAD`
+        if not raw_git_output:
+          raw_git_output = self._raw_commit_output('HEAD')
+
+        return raw_git_output
 
     def _raw_branch_output(self):
         return self._raw_git_output(['rev-parse', '--abbrev-ref', 'HEAD'])

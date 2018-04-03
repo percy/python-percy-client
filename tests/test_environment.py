@@ -143,17 +143,28 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         assert isstr(commit_data['committer_name'])
         assert isstr(commit_data['committer_email'])
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture()
     def test_commit_with_failed_raw_commit(self, monkeypatch):
         # Call commit using faking a _raw_commit_data failure.
-        # If git command fails, returns only the branch.
+        # If git command fails, only data from environment variables.
+        os.environ['PERCY_COMMIT'] = 'testcommitsha'
+        os.environ['PERCY_BRANCH'] = 'testbranch'
         monkeypatch.setattr(self.environment, '_raw_commit_output', lambda x: '')
-        assert self.environment.commit_data == {'branch': 'foo'}
+        assert self.environment.commit_data == {
+            'branch': 'testbranch',
+            'author_email': None,
+            'author_name': None,
+            'committer_email': None,
+            'committer_name': None,
+            'sha': 'testcommitsha',
+        }
+        self.clear_env_vars()
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture()
     def test_commit_with_mocked_raw_commit(self, monkeypatch):
         # Call commit with _raw_commit_data returning mock data, so we can confirm it
         # gets formatted correctly
+        os.environ['PERCY_BRANCH'] = 'the-coolest-branch'
         def fake_raw_commit(commit_sha):
             return """COMMIT_SHA:2fcd1b107aa25e62a06de7782d0c17544c669d139
                       AUTHOR_NAME:Tim Haines
@@ -165,7 +176,7 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
 
         monkeypatch.setattr(self.environment, '_raw_commit_output', fake_raw_commit)
         assert self.environment.commit_data == {
-            'branch': 'foo',
+            'branch': 'the-coolest-branch',
             'sha': '2fcd1b107aa25e62a06de7782d0c17544c669d139',
             'committed_at': '2018-03-10 14:41:02 -0800',
             'message': 'This is a great commit',
@@ -176,7 +187,7 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         }
 
 
-    @pytest.fixture(autouse=True)
+    @pytest.fixture()
     def test_branch(self, monkeypatch):
         # Default calls _raw_branch_output and call git underneath, so allow any non-empty string.
         assert len(self.environment.branch) > 0
