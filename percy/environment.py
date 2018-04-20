@@ -211,8 +211,6 @@ class TravisEnvironment(object):
 
     @property
     def commit_sha(self):
-        if self.pull_request_number and os.getenv('TRAVIS_PULL_REQUEST_SHA'):
-            return os.getenv('TRAVIS_PULL_REQUEST_SHA')
         return os.getenv('TRAVIS_COMMIT')
 
     @property

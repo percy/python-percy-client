@@ -12,7 +12,6 @@ class BaseTestPercyEnvironment(object):
         self.original_env['TRAVIS_BRANCH'] = os.getenv('TRAVIS_BRANCH', None)
         self.original_env['TRAVIS_PULL_REQUEST'] = os.getenv('TRAVIS_PULL_REQUEST', None)
         self.original_env['TRAVIS_PULL_REQUEST_BRANCH'] = os.getenv('TRAVIS_PULL_REQUEST_BRANCH', None)
-        self.original_env['TRAVIS_PULL_REQUEST_SHA'] = os.getenv('TRAVIS_PULL_REQUEST_SHA', None)
         self.original_env['TRAVIS_REPO_SLUG'] = os.getenv('TRAVIS_REPO_SLUG', None)
 
     def teardown_method(self, method):
@@ -42,7 +41,6 @@ class BaseTestPercyEnvironment(object):
             'TRAVIS_BRANCH',
             'TRAVIS_PULL_REQUEST',
             'TRAVIS_PULL_REQUEST_BRANCH',
-            'TRAVIS_PULL_REQUEST_SHA',
             'TRAVIS_REPO_SLUG',
             'CI_NODE_TOTAL',
 
@@ -232,7 +230,6 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
         os.environ['TRAVIS_REPO_SLUG'] = 'travis/repo-slug'
         os.environ['TRAVIS_PULL_REQUEST'] = 'false'
         os.environ['TRAVIS_PULL_REQUEST_BRANCH'] = 'false'
-        os.environ['TRAVIS_PULL_REQUEST_SHA'] = 'false'
         os.environ['TRAVIS_COMMIT'] = 'travis-commit-sha'
         os.environ['TRAVIS_BRANCH'] = 'travis-branch'
         os.environ['CI_NODE_TOTAL'] = '3'
@@ -257,7 +254,6 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
         # Triggers special path if PR build in Travis.
         os.environ['TRAVIS_PULL_REQUEST'] = '256'
         os.environ['TRAVIS_PULL_REQUEST_BRANCH'] = 'travis-pr-branch'
-        os.environ['TRAVIS_PULL_REQUEST_SHA'] = 'travis-pr-head-commit-sha'
         assert self.environment.branch == 'travis-pr-branch'
 
         os.environ['PERCY_BRANCH'] = 'foo'
@@ -271,11 +267,6 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
 
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'travis-commit-sha'
-
-        # Triggers special path if PR build in Travis.
-        os.environ['TRAVIS_PULL_REQUEST'] = '256'
-        os.environ['TRAVIS_PULL_REQUEST_SHA'] = 'travis-pr-head-commit-sha'
-        assert self.environment.commit_sha == 'travis-pr-head-commit-sha'
 
         os.environ['PERCY_COMMIT'] = 'commit-sha'
         assert self.environment.commit_sha == 'commit-sha'
