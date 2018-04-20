@@ -11,8 +11,8 @@ GIT_COMMIT_FORMAT = '%n'.join([
   'COMMIT_SHA:%H',
   'AUTHOR_NAME:%an',
   'AUTHOR_EMAIL:%ae',
-  'COMMITTER_NAME:%an',
-  'COMMITTER_EMAIL:%ae',
+  'COMMITTER_NAME:%cn',
+  'COMMITTER_EMAIL:%ce',
   'COMMITTED_DATE:%ai',
   # Note: order is important, this must come last because the regex is a multiline match.
   'COMMIT_MESSAGE:%B',
