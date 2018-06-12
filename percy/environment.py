@@ -116,6 +116,12 @@ class Environment(object):
             return self._real_env.commit_sha
 
     @property
+    def target_commit_sha(self):
+        if os.getenv('PERCY_TARGET_COMMIT'):
+            return os.getenv('PERCY_TARGET_COMMIT')
+        return None
+
+    @property
     def repo(self):
         if os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT'):
             return os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT')

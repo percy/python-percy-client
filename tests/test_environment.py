@@ -28,6 +28,7 @@ class BaseTestPercyEnvironment(object):
             'PERCY_COMMIT',
             'PERCY_BRANCH',
             'PERCY_TARGET_BRANCH',
+            'PERCY_TARGET_COMMIT',
             'PERCY_PULL_REQUEST',
             'PERCY_REPO_SLUG',
             'PERCY_PROJECT',
@@ -115,6 +116,12 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         # Can be overridden with PERCY_TARGET_BRANCH.
         os.environ['PERCY_TARGET_BRANCH'] = 'staging'
         assert self.environment.target_branch == 'staging'
+
+    def test_target_commit_sha(self):
+        assert self.environment.target_commit_sha == None
+        # Can be overridden with PERCY_TARGET_COMMIT.
+        os.environ['PERCY_TARGET_COMMIT'] = 'test-target-commit'
+        assert self.environment.target_commit_sha == 'test-target-commit'
 
     def test_pull_request_number(self):
         assert self.environment.pull_request_number == None
