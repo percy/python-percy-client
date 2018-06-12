@@ -44,6 +44,7 @@ class TestPercyClient(unittest.TestCase):
                 'attributes': {
                     'branch': self.percy_client.environment.branch,
                     'target-branch': self.percy_client.environment.target_branch,
+                    'target-commit-sha': self.percy_client.environment.target_commit_sha,
                     'commit-sha': commit_data['sha'],
                     'commit-committed-at': commit_data['committed_at'],
                     'commit-author-name': commit_data['author_name'],

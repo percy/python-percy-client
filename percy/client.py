@@ -50,6 +50,7 @@ class Client(object):
                 'attributes': {
                     'branch': branch,
                     'target-branch': self.environment.target_branch,
+                    'target-commit-sha': self.environment.target_commit_sha,
                     'commit-sha': commit_data['sha'],
                     'commit-committed-at': commit_data['committed_at'],
                     'commit-author-name': commit_data['author_name'],
