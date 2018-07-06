@@ -97,6 +97,14 @@ class BaseTestPercyEnvironment(object):
             'BUILDKITE_PULL_REQUEST',
             'BUILDKITE_BUILD_ID',
             'BUILDKITE_PARALLEL_JOB_COUNT',
+
+
+            # Unset GitLab vars
+            'GITLAB_CI',
+            'CI_COMMIT_SHA',
+            'CI_COMMIT_REF_NAME',
+            'CI_JOB_ID',
+            'CI_JOB_STAGE',
         ]
         for env_var in all_possible_env_vars:
             if os.getenv(env_var):
@@ -476,9 +484,31 @@ class TestBuildkiteEnvironment(BaseTestPercyEnvironment):
         os.environ['BUILDKITE_COMMIT'] = 'HEAD'
         assert self.environment.commit_sha is None
 
-
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'buildkite-build-id'
 
     def test_parallel_total(self):
         assert self.environment.parallel_total_shards == 2
+
+
+class TestGitlabEnvironment(BaseTestPercyEnvironment):
+    def setup_method(self, method):
+        super(TestGitlabEnvironment, self).setup_method(self)
+        os.environ['GITLAB_CI'] = 'true'
+        os.environ['CI_COMMIT_SHA'] = 'gitlab-commit-sha'
+        os.environ['CI_COMMIT_REF_NAME'] = 'gitlab-branch'
+        os.environ['CI_JOB_ID'] = 'gitlab-job-id'
+        os.environ['CI_JOB_STAGE'] = 'test'
+        self.environment = percy.Environment()
+
+    def test_current_ci(self):
+        assert self.environment.current_ci == 'gitlab'
+
+    def test_branch(self):
+        assert self.environment.branch == 'gitlab-branch'
+
+    def test_commit_sha(self):
+        assert self.environment.commit_sha == 'gitlab-commit-sha'
+
+    def test_parallel_nonce(self):
+        assert self.environment.parallel_nonce == 'gitlab-branch/gitlab-job-id'
