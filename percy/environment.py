@@ -36,6 +36,8 @@ class Environment(object):
             self._real_env = SemaphoreEnvironment()
         elif os.getenv('BUILDKITE') == 'true':
             self._real_env = BuildkiteEnvironment()
+        elif os.getenv('GITLAB_CI') == 'true':
+            self._real_env = GitlabEnvironment()
 
     @property
     def current_ci(self):
@@ -398,3 +400,28 @@ class BuildkiteEnvironment(object):
     def parallel_total_shards(self):
         if os.getenv('BUILDKITE_PARALLEL_JOB_COUNT', '').isdigit():
             return int(os.getenv('BUILDKITE_PARALLEL_JOB_COUNT'))
+
+
+class GitlabEnvironment(object):
+    @property
+    def current_ci(self):
+        return 'gitlab'
+
+    @property
+    def pull_request_number(self):
+        return os.getenv('PERCY_PULL_REQUEST')
+
+    @property
+    def branch(self):
+        return os.getenv('CI_COMMIT_REF_NAME')
+
+    @property
+    def commit_sha(self):
+        return os.getenv('CI_COMMIT_SHA')
+
+    @property
+    def parallel_nonce(self):
+        return '%s/%s' % (
+            os.getenv('CI_COMMIT_REF_NAME'),
+            os.getenv('CI_JOB_ID')
+        )
