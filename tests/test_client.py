@@ -31,7 +31,7 @@ class TestPercyClient(unittest.TestCase):
     def test_create_build(self, mock):
         fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
+        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=build_fixture)
         resources = [
             percy.Resource(resource_url='/main.css', is_root=False, content='foo'),
         ]
@@ -80,7 +80,7 @@ class TestPercyClient(unittest.TestCase):
     def test_finalize_build(self, mock):
         fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
+        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=build_fixture)
         mock.post('https://percy.io/api/v1/builds/31/finalize', text='{"success": "true"}')
 
         build_data = self.percy_client.create_build(repo='foo/bar')
@@ -94,7 +94,7 @@ class TestPercyClient(unittest.TestCase):
     def test_create_snapshot(self, mock):
         fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=build_fixture)
+        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=build_fixture)
         build_id = json.loads(build_fixture)['data']['id']
 
         resources = [

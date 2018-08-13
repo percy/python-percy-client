@@ -61,7 +61,7 @@ class TestRunner(unittest.TestCase):
         runner = percy.Runner(config=config, loader=loader)
 
         response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
+        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=response_text)
         runner.initialize_build(repo='foo/bar')
 
         # Whitebox check that the current build data is set correctly.
@@ -92,7 +92,7 @@ class TestRunner(unittest.TestCase):
                 },
             },
         }
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=json.dumps(build_fixture))
+        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=json.dumps(build_fixture))
         mock.post('https://percy.io/api/v1/builds/123/resources/', text='{"success": true}')
         runner.initialize_build(repo='foo/bar')
 
@@ -124,7 +124,7 @@ class TestRunner(unittest.TestCase):
         runner = percy.Runner(config=config, loader=loader)
 
         response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
+        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=response_text)
         runner.initialize_build(repo='foo/bar')
 
         # Plain snapshot without a missing resource.
@@ -182,7 +182,7 @@ class TestRunner(unittest.TestCase):
         self.assertRaises(errors.UninitializedBuildError, lambda: runner.finalize_build())
 
         response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
+        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=response_text)
         runner.initialize_build(repo='foo/bar')
 
         mock.post('https://percy.io/api/v1/builds/123/finalize', text='{"success": true}')

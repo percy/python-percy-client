@@ -72,7 +72,7 @@ class Client(object):
                 }
             }
 
-        path = "{base_url}/repos/{repo}/builds/".format(
+        path = "{base_url}/projects/{repo}/builds/".format(
             base_url=self.config.api_url,
             repo=repo,
         )
