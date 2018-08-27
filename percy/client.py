@@ -28,7 +28,7 @@ class Client(object):
         return self._environment
 
     def create_build(self, **kwargs):
-        repo = kwargs.get('repo')
+        repo = kwargs.get('repo') or self.environment.repo
         branch = kwargs.get('branch') or self.environment.branch
         pull_request_number = kwargs.get('pull_request_number') \
             or self.environment.pull_request_number
