@@ -205,10 +205,6 @@ class TravisEnvironment(object):
         return os.getenv('TRAVIS_BRANCH')
 
     @property
-    def repo(self):
-        return os.getenv('TRAVIS_REPO_SLUG')
-
-    @property
     def commit_sha(self):
         return os.getenv('TRAVIS_COMMIT')
 
@@ -259,13 +255,6 @@ class CircleEnvironment(object):
     @property
     def branch(self):
         return os.getenv('CIRCLE_BRANCH')
-
-    @property
-    def repo(self):
-        return "{0}/{1}".format(
-            os.getenv('CIRCLE_PROJECT_USERNAME'),
-            os.getenv('CIRCLE_PROJECT_REPONAME'),
-        )
 
     @property
     def commit_sha(self):
@@ -341,10 +330,6 @@ class SemaphoreEnvironment(object):
     @property
     def branch(self):
         return os.getenv('BRANCH_NAME')
-
-    @property
-    def repo(self):
-      return os.getenv('SEMAPHORE_REPO_SLUG')
 
     @property
     def commit_sha(self):
