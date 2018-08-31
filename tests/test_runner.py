@@ -61,8 +61,8 @@ class TestRunner(unittest.TestCase):
         runner = percy.Runner(config=config, loader=loader)
 
         response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
-        runner.initialize_build(repo='foo/bar')
+        mock.post('https://percy.io/api/v1/builds/', text=response_text)
+        runner.initialize_build()
 
         # Whitebox check that the current build data is set correctly.
         assert runner._current_build == SIMPLE_BUILD_FIXTURE
@@ -92,9 +92,9 @@ class TestRunner(unittest.TestCase):
                 },
             },
         }
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=json.dumps(build_fixture))
+        mock.post('https://percy.io/api/v1/builds/', text=json.dumps(build_fixture))
         mock.post('https://percy.io/api/v1/builds/123/resources/', text='{"success": true}')
-        runner.initialize_build(repo='foo/bar')
+        runner.initialize_build()
 
         # Make sure the missing resources were uploaded. The mock above will not fail if not called.
         with open(loader.build_resources[0].local_path, 'r') as f:
@@ -124,8 +124,8 @@ class TestRunner(unittest.TestCase):
         runner = percy.Runner(config=config, loader=loader)
 
         response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
-        runner.initialize_build(repo='foo/bar')
+        mock.post('https://percy.io/api/v1/builds/', text=response_text)
+        runner.initialize_build()
 
         # Plain snapshot without a missing resource.
         response_text = json.dumps(SIMPLE_SNAPSHOT_FIXTURE)
@@ -182,8 +182,8 @@ class TestRunner(unittest.TestCase):
         self.assertRaises(errors.UninitializedBuildError, lambda: runner.finalize_build())
 
         response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
-        mock.post('https://percy.io/api/v1/repos/foo/bar/builds/', text=response_text)
-        runner.initialize_build(repo='foo/bar')
+        mock.post('https://percy.io/api/v1/builds/', text=response_text)
+        runner.initialize_build()
 
         mock.post('https://percy.io/api/v1/builds/123/finalize', text='{"success": true}')
         runner.finalize_build()

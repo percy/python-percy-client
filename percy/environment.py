@@ -124,26 +124,6 @@ class Environment(object):
         return None
 
     @property
-    def repo(self):
-        if os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT'):
-            return os.getenv('PERCY_REPO_SLUG') or os.getenv('PERCY_PROJECT')
-        if self._real_env and hasattr(self._real_env, 'repo'):
-            return self._real_env.repo
-
-        origin_url = self._get_origin_url()
-        if not origin_url:
-          raise errors.RepoNotFoundError(
-            'No local git repository found. ' +
-            'You can manually set PERCY_PROJECT=org/repo-name to fix this.')
-
-        match = re.compile(r'.*[:/]([^/]+\/[^/]+?)(\.git)?\Z').match(origin_url)
-        if not match:
-          raise errors.RepoNotFoundError(
-            "Could not determine repository name from URL: {0}\n" +
-            "You can manually set PERCY_PROJECT=org/repo-name to fix this.".format(origin_url))
-        return match.group(1)
-
-    @property
     def parallel_nonce(self):
         if os.getenv('PERCY_PARALLEL_NONCE'):
           return os.getenv('PERCY_PARALLEL_NONCE')
@@ -214,10 +194,6 @@ class TravisEnvironment(object):
         return os.getenv('TRAVIS_BRANCH')
 
     @property
-    def repo(self):
-        return os.getenv('TRAVIS_REPO_SLUG')
-
-    @property
     def commit_sha(self):
         return os.getenv('TRAVIS_COMMIT')
 
@@ -268,13 +244,6 @@ class CircleEnvironment(object):
     @property
     def branch(self):
         return os.getenv('CIRCLE_BRANCH')
-
-    @property
-    def repo(self):
-        return "{0}/{1}".format(
-            os.getenv('CIRCLE_PROJECT_USERNAME'),
-            os.getenv('CIRCLE_PROJECT_REPONAME'),
-        )
 
     @property
     def commit_sha(self):
@@ -350,10 +319,6 @@ class SemaphoreEnvironment(object):
     @property
     def branch(self):
         return os.getenv('BRANCH_NAME')
-
-    @property
-    def repo(self):
-      return os.getenv('SEMAPHORE_REPO_SLUG')
 
     @property
     def commit_sha(self):

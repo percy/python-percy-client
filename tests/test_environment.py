@@ -12,7 +12,6 @@ class BaseTestPercyEnvironment(object):
         self.original_env['TRAVIS_BRANCH'] = os.getenv('TRAVIS_BRANCH', None)
         self.original_env['TRAVIS_PULL_REQUEST'] = os.getenv('TRAVIS_PULL_REQUEST', None)
         self.original_env['TRAVIS_PULL_REQUEST_BRANCH'] = os.getenv('TRAVIS_PULL_REQUEST_BRANCH', None)
-        self.original_env['TRAVIS_REPO_SLUG'] = os.getenv('TRAVIS_REPO_SLUG', None)
 
     def teardown_method(self, method):
         self.clear_env_vars()
@@ -30,8 +29,6 @@ class BaseTestPercyEnvironment(object):
             'PERCY_TARGET_BRANCH',
             'PERCY_TARGET_COMMIT',
             'PERCY_PULL_REQUEST',
-            'PERCY_REPO_SLUG',
-            'PERCY_PROJECT',
             'PERCY_PARALLEL_NONCE',
             'PERCY_PARALLEL_TOTAL',
 
@@ -42,7 +39,6 @@ class BaseTestPercyEnvironment(object):
             'TRAVIS_BRANCH',
             'TRAVIS_PULL_REQUEST',
             'TRAVIS_PULL_REQUEST_BRANCH',
-            'TRAVIS_REPO_SLUG',
             'CI_NODE_TOTAL',
 
             # Unset Jenkins vars.
@@ -57,8 +53,6 @@ class BaseTestPercyEnvironment(object):
             'CIRCLECI',
             'CIRCLE_SHA1',
             'CIRCLE_BRANCH',
-            'CIRCLE_PROJECT_USERNAME',
-            'CIRCLE_PROJECT_REPONAME',
             'CIRCLE_BUILD_NUM',
             'CI_PULL_REQUESTS',
             'CIRCLE_NODE_TOTAL',
@@ -83,7 +77,6 @@ class BaseTestPercyEnvironment(object):
             'SEMAPHORE',
             'REVISION',
             'BRANCH_NAME',
-            'SEMAPHORE_REPO_SLUG',
             'SEMAPHORE_BRANCH_ID',
             'SEMAPHORE_BUILD_NUMBER',
             'SEMAPHORE_CURRENT_THREAD',
@@ -213,15 +206,6 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
 
-    def test_repo(self):
-        assert self.environment.repo == 'percy/python-percy-client'  # This actual repo name.
-        # Can be overridden with PERCY_PROJECT.
-        os.environ['PERCY_PROJECT'] = 'foo/bar-qux'
-        assert self.environment.repo == 'foo/bar-qux'
-        # Deprecated: can be overridden with PERCY_REPO_SLUG.
-        os.environ['PERCY_REPO_SLUG'] = 'foo/bar'
-        assert self.environment.repo == 'foo/bar'
-
     def test_commit_sha(self):
         assert not self.environment.commit_sha
         # Can be overridden with PERCY_COMMIT.
@@ -242,7 +226,6 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
         super(TestTravisEnvironment, self).setup_method(self)
         os.environ['TRAVIS_BUILD_ID'] = '1234'
         os.environ['TRAVIS_BUILD_NUMBER'] = 'travis-build-number'
-        os.environ['TRAVIS_REPO_SLUG'] = 'travis/repo-slug'
         os.environ['TRAVIS_PULL_REQUEST'] = 'false'
         os.environ['TRAVIS_PULL_REQUEST_BRANCH'] = 'false'
         os.environ['TRAVIS_COMMIT'] = 'travis-commit-sha'
@@ -273,12 +256,6 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
 
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
-
-    def test_repo(self):
-        assert self.environment.repo == 'travis/repo-slug'
-
-        os.environ['PERCY_REPO_SLUG'] = 'foo'
-        assert self.environment.repo == 'foo'
 
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'travis-commit-sha'
@@ -324,9 +301,6 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'jenkins-source-branch'
 
-    def test_repo(self):
-        assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
-
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'jenkins-commit-sha'
         del os.environ['ghprbActualCommit']
@@ -345,8 +319,6 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
         os.environ['CIRCLECI'] = 'true'
         os.environ['CIRCLE_BRANCH'] = 'circle-branch'
         os.environ['CIRCLE_SHA1'] = 'circle-commit-sha'
-        os.environ['CIRCLE_PROJECT_USERNAME'] = 'circle'
-        os.environ['CIRCLE_PROJECT_REPONAME'] = 'repo-name'
         os.environ['CIRCLE_BUILD_NUM'] = 'circle-build-number'
         os.environ['CIRCLE_NODE_TOTAL'] = '3'
         os.environ['CI_PULL_REQUESTS'] = 'https://github.com/owner/repo-name/pull/123'
@@ -357,9 +329,6 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
 
     def test_branch(self):
         assert self.environment.branch == 'circle-branch'
-
-    def test_repo(self):
-        assert self.environment.repo == 'circle/repo-name'
 
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'circle-commit-sha'
@@ -388,9 +357,6 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'codeship-branch'
 
-    def test_repo(self):
-        assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
-
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'codeship-commit-sha'
 
@@ -416,9 +382,6 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'drone-branch'
 
-    def test_repo(self):
-        assert self.environment.repo == 'percy/python-percy-client'  # Fallback to default.
-
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'drone-commit-sha'
 
@@ -435,7 +398,6 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
         os.environ['SEMAPHORE'] = 'true'
         os.environ['BRANCH_NAME'] = 'semaphore-branch'
         os.environ['REVISION'] = 'semaphore-commit-sha'
-        os.environ['SEMAPHORE_REPO_SLUG'] = 'semaphore/repo-name'
         os.environ['SEMAPHORE_BRANCH_ID'] = 'semaphore-branch-id'
         os.environ['SEMAPHORE_BUILD_NUMBER'] = 'semaphore-build-number'
         os.environ['SEMAPHORE_THREAD_COUNT'] = '2'
@@ -447,9 +409,6 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
 
     def test_branch(self):
         assert self.environment.branch == 'semaphore-branch'
-
-    def test_repo(self):
-        assert self.environment.repo == 'semaphore/repo-name'
 
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'semaphore-commit-sha'
