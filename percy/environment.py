@@ -124,17 +124,6 @@ class Environment(object):
         return None
 
     @property
-    def repo(self):
-        if os.getenv('PERCY_PROJECT'):
-            utils.print_error('[percy] [Deprecation] PERCY_PROJECT is no longer required.')
-            return os.getenv('PERCY_PROJECT')
-        elif os.getenv('PERCY_REPO_SLUG'):
-            utils.print_error('[percy] [Deprecation] PERCY_REPO_SLUG is no longer required.')
-            return os.getenv('PERCY_REPO_SLUG')
-        else:
-            return None
-
-    @property
     def parallel_nonce(self):
         if os.getenv('PERCY_PARALLEL_NONCE'):
           return os.getenv('PERCY_PARALLEL_NONCE')
