@@ -29,8 +29,6 @@ class BaseTestPercyEnvironment(object):
             'PERCY_TARGET_BRANCH',
             'PERCY_TARGET_COMMIT',
             'PERCY_PULL_REQUEST',
-            'PERCY_REPO_SLUG',
-            'PERCY_PROJECT',
             'PERCY_PARALLEL_NONCE',
             'PERCY_PARALLEL_TOTAL',
 
@@ -208,16 +206,6 @@ class TestNoEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
 
-    def test_repo(self):
-        assert self.environment.repo == None  # This actual repo name.
-
-        # Deprecated: can be overridden with PERCY_REPO_SLUG.
-        os.environ['PERCY_REPO_SLUG'] = 'foo/bar'
-        assert self.environment.repo == 'foo/bar'
-        # Can be overridden with PERCY_PROJECT.
-        os.environ['PERCY_PROJECT'] = 'foo/bar-qux'
-        assert self.environment.repo == 'foo/bar-qux'
-
     def test_commit_sha(self):
         assert not self.environment.commit_sha
         # Can be overridden with PERCY_COMMIT.
@@ -269,12 +257,6 @@ class TestTravisEnvironment(BaseTestPercyEnvironment):
         os.environ['PERCY_BRANCH'] = 'foo'
         assert self.environment.branch == 'foo'
 
-    def test_repo(self):
-        assert self.environment.repo == None
-
-        os.environ['PERCY_PROJECT'] = 'foo'
-        assert self.environment.repo == 'foo'
-
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'travis-commit-sha'
 
@@ -319,9 +301,6 @@ class TestJenkinsEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'jenkins-source-branch'
 
-    def test_repo(self):
-        assert self.environment.repo == None
-
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'jenkins-commit-sha'
         del os.environ['ghprbActualCommit']
@@ -351,9 +330,6 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'circle-branch'
 
-    def test_repo(self):
-        assert self.environment.repo == None
-
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'circle-commit-sha'
 
@@ -381,9 +357,6 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
     def test_branch(self):
         assert self.environment.branch == 'codeship-branch'
 
-    def test_repo(self):
-        assert self.environment.repo == None  # Fallback to default.
-
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'codeship-commit-sha'
 
@@ -408,9 +381,6 @@ class TestDroneEnvironment(BaseTestPercyEnvironment):
 
     def test_branch(self):
         assert self.environment.branch == 'drone-branch'
-
-    def test_repo(self):
-        assert self.environment.repo == None  # Fallback to default.
 
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'drone-commit-sha'
@@ -439,9 +409,6 @@ class TestSemaphoreEnvironment(BaseTestPercyEnvironment):
 
     def test_branch(self):
         assert self.environment.branch == 'semaphore-branch'
-
-    def test_repo(self):
-        assert self.environment.repo == None
 
     def test_commit_sha(self):
         assert self.environment.commit_sha == 'semaphore-commit-sha'

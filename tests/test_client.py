@@ -36,7 +36,7 @@ class TestPercyClient(unittest.TestCase):
             percy.Resource(resource_url='/main.css', is_root=False, content='foo'),
         ]
 
-        build_data = self.percy_client.create_build(repo=None, resources=resources)
+        build_data = self.percy_client.create_build(resources=resources)
         commit_data = self.percy_client.environment.commit_data
         assert mock.request_history[0].json() == {
             'data': {

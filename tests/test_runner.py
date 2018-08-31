@@ -62,7 +62,7 @@ class TestRunner(unittest.TestCase):
 
         response_text = json.dumps(SIMPLE_BUILD_FIXTURE)
         mock.post('https://percy.io/api/v1/builds/', text=response_text)
-        runner.initialize_build(repo='foo/bar')
+        runner.initialize_build()
 
         # Whitebox check that the current build data is set correctly.
         assert runner._current_build == SIMPLE_BUILD_FIXTURE
