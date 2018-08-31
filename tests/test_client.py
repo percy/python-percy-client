@@ -28,55 +28,6 @@ class TestPercyClient(unittest.TestCase):
         self.assertEqual(self.percy_client.config.default_widths, [640, 480])
 
     @requests_mock.Mocker()
-    def test_create_build(self, mock):
-        fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
-        build_fixture = open(fixture_path).read()
-        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=build_fixture)
-        resources = [
-            percy.Resource(resource_url='/main.css', is_root=False, content='foo'),
-        ]
-
-        build_data = self.percy_client.create_build(repo='foo/bar', resources=resources)
-        commit_data = self.percy_client.environment.commit_data
-        assert mock.request_history[0].json() == {
-            'data': {
-                'type': 'builds',
-                'attributes': {
-                    'branch': self.percy_client.environment.branch,
-                    'target-branch': self.percy_client.environment.target_branch,
-                    'target-commit-sha': self.percy_client.environment.target_commit_sha,
-                    'commit-sha': commit_data['sha'],
-                    'commit-committed-at': commit_data['committed_at'],
-                    'commit-author-name': commit_data['author_name'],
-                    'commit-author-email': commit_data['author_email'],
-                    'commit-committer-name': commit_data['committer_name'],
-                    'commit-committer-email': commit_data['committer_email'],
-                    'commit-message': commit_data['message'],
-                    'pull-request-number': self.percy_client.environment.pull_request_number,
-                    'parallel-nonce': self.percy_client.environment.parallel_nonce,
-                    'parallel-total-shards': self.percy_client.environment.parallel_total_shards,
-                },
-               'relationships': {
-                    'resources': {
-                        'data': [
-                            {
-                                'type': 'resources',
-                                'id': resources[0].sha,
-                                'attributes': {
-                                    'resource-url': resources[0].resource_url,
-                                    'mimetype': resources[0].mimetype,
-                                    'is-root': resources[0].is_root,
-                                }
-                            }
-                        ],
-                    }
-                }
-
-            }
-        }
-        assert build_data == json.loads(build_fixture)
-
-    @requests_mock.Mocker()
     def test_create_build_from_token(self, mock):
         fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
@@ -129,10 +80,10 @@ class TestPercyClient(unittest.TestCase):
     def test_finalize_build(self, mock):
         fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
-        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=build_fixture)
+        mock.post('https://percy.io/api/v1/builds/', text=build_fixture)
         mock.post('https://percy.io/api/v1/builds/31/finalize', text='{"success": "true"}')
 
-        build_data = self.percy_client.create_build(repo='foo/bar')
+        build_data = self.percy_client.create_build()
         build_id = build_data['data']['id']
         finalize_response = self.percy_client.finalize_build(build_id=build_id)
 
@@ -143,7 +94,7 @@ class TestPercyClient(unittest.TestCase):
     def test_create_snapshot(self, mock):
         fixture_path = os.path.join(FIXTURES_DIR, 'build_response.json')
         build_fixture = open(fixture_path).read()
-        mock.post('https://percy.io/api/v1/projects/foo/bar/builds/', text=build_fixture)
+        mock.post('https://percy.io/api/v1/builds/', text=build_fixture)
         build_id = json.loads(build_fixture)['data']['id']
 
         resources = [
@@ -154,7 +105,7 @@ class TestPercyClient(unittest.TestCase):
         mock_data = open(fixture_path).read()
         mock.post('https://percy.io/api/v1/builds/{0}/snapshots/'.format(build_id), text=mock_data)
 
-        build_data = self.percy_client.create_build(repo='foo/bar')
+        build_data = self.percy_client.create_build()
         snapshot_data = self.percy_client.create_snapshot(
             build_id,
             resources,
