@@ -28,7 +28,6 @@ class Client(object):
         return self._environment
 
     def create_build(self, **kwargs):
-        repo = kwargs.get('repo') or self.environment.repo
         branch = kwargs.get('branch') or self.environment.branch
         pull_request_number = kwargs.get('pull_request_number') \
             or self.environment.pull_request_number
@@ -72,13 +71,7 @@ class Client(object):
                 }
             }
 
-        if repo is not None:
-            path = "{base_url}/projects/{repo}/builds/".format(
-                base_url=self.config.api_url,
-                repo=repo,
-            )
-        else:
-            path = "{base_url}/builds/".format(base_url=self.config.api_url)
+        path = "{base_url}/builds/".format(base_url=self.config.api_url)
 
         return self._connection.post(path=path, data=data)
 
