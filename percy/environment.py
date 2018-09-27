@@ -251,7 +251,7 @@ class CircleEnvironment(object):
 
     @property
     def parallel_nonce(self):
-        return os.getenv('CIRCLE_BUILD_NUM')
+        return os.getenv('CIRCLE_WORKFLOW_ID') or os.getenv('CIRCLE_BUILD_NUM')
 
     @property
     def parallel_total_shards(self):
