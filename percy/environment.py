@@ -281,7 +281,7 @@ class CodeshipEnvironment(object):
 
     @property
     def parallel_nonce(self):
-        return os.getenv('CI_BUILD_NUMBER')
+        return os.getenv('CI_BUILD_NUMBER') or os.getenv('CI_BUILD_ID')
 
     @property
     def parallel_total_shards(self):

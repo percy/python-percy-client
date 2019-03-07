@@ -64,6 +64,7 @@ class BaseTestPercyEnvironment(object):
             'CI_PULL_REQUEST',
             'CI_COMMIT_ID',
             'CI_BUILD_NUMBER',
+            'CI_BUILD_ID',
             'CI_NODE_TOTAL',
 
             # Unset Drone vars.
@@ -350,6 +351,7 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
         os.environ['CI_NAME'] = 'codeship'
         os.environ['CI_BRANCH'] = 'codeship-branch'
         os.environ['CI_BUILD_NUMBER'] = 'codeship-build-number'
+        os.environ['CI_BUILD_ID'] = 'codeship-build-id'
         os.environ['CI_PULL_REQUEST'] = 'false'  # This is always false on Codeship, unfortunately.
         os.environ['CI_COMMIT_ID'] = 'codeship-commit-sha'
         os.environ['CI_NODE_TOTAL'] = '3'
@@ -366,6 +368,8 @@ class TestCodeshipEnvironment(BaseTestPercyEnvironment):
 
     def test_parallel_nonce(self):
         assert self.environment.parallel_nonce == 'codeship-build-number'
+        del os.environ['CI_BUILD_NUMBER']
+        assert self.environment.parallel_nonce == 'codeship-build-id'
 
     def test_parallel_total(self):
         assert self.environment.parallel_total_shards == 3
