@@ -5,6 +5,8 @@
 
 Python client library for visual regression testing with [Percy](https://percy.io).
 
+**Note**: This SDK has been deprecated in favor of our new Python SDK (which matches the API of all our other SDKS): https://github.com/percy/percy-python-selenium
+
 ## Usage
 
 #### Docs here: [https://percy.io/docs/clients/python/selenium](https://percy.io/docs/clients/python/selenium)
