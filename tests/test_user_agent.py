@@ -11,7 +11,7 @@ class TestPercyUserAgent(unittest.TestCase):
     def test_string(self):
         self.assertTrue(
             re.match(
-                '^Percy/v1 python-percy-client/[.\d]+ \(python/[.\d]+(; travis)?\)$',
+                r'^Percy/v1 python-percy-client/[.\d]+ \(python/[.\d]+(; travis)?\)$',
                 str(UserAgent(self.config, self.environment))
             )
         )
