@@ -322,7 +322,7 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
         os.environ['CIRCLE_BRANCH'] = 'circle-branch'
         os.environ['CIRCLE_SHA1'] = 'circle-commit-sha'
         os.environ['CIRCLE_BUILD_NUM'] = 'circle-build-number'
-        os.environ['CIRCLE_WORKFLOW_WORKSPACE_ID'] = 'circle-workflow-workspace-id'
+        os.environ['CIRCLE_WORKFLOW_ID'] = 'circle-workflow-id'
         os.environ['CIRCLE_NODE_TOTAL'] = '3'
         os.environ['CI_PULL_REQUESTS'] = 'https://github.com/owner/repo-name/pull/123'
         self.environment = percy.Environment()
@@ -337,8 +337,8 @@ class TestCircleEnvironment(BaseTestPercyEnvironment):
         assert self.environment.commit_sha == 'circle-commit-sha'
 
     def test_parallel_nonce(self):
-        assert self.environment.parallel_nonce == 'circle-workflow-workspace-id'
-        del os.environ['CIRCLE_WORKFLOW_WORKSPACE_ID']
+        assert self.environment.parallel_nonce == 'circle-workflow-id'
+        del os.environ['CIRCLE_WORKFLOW_ID']
         assert self.environment.parallel_nonce == 'circle-build-number'
 
     def test_parallel_total(self):
